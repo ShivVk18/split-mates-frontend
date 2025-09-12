@@ -36,13 +36,13 @@ const CURRENCY_OPTIONS = [
 
 const CATEGORY_OPTIONS = [
   { value: "GENERAL", label: "General" },
-  { value: "TRAVEL", label: "Travel" },
-  { value: "FOOD", label: "Food & Dining" },
-  { value: "UTILITIES", label: "Utilities" },
-  { value: "ENTERTAINMENT", label: "Entertainment" },
-  { value: "SHOPPING", label: "Shopping" },
-  { value: "TRANSPORT", label: "Transport" },
-  { value: "OTHER", label: "Other" }
+  { value: "TRIP", label: "Trip" },
+  { value: "HOME", label: "Home" },
+  { value: "COUPLE", label: "Couple" },
+  { value: "FRIENDS", label: "Friends" },
+  { value: "WORK", label: "Work" },
+  { value: "PROJECT", label: "Project" },
+  { value: "EVENT", label: "Event" }
 ]
 
 export default function GroupsPage() {

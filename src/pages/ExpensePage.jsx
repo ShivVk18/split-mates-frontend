@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
@@ -17,7 +16,9 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Receipt, DollarSign, Calendar, Users, Filter, Search, Clock, TrendingUp, AlertCircle, Loader2 } from "lucide-react"
-import { expenseService, expenseHelpers } from "../services/expenseService"
+
+// Import the real services
+import { expenseService, expenseHelpers } from "@/services/expenseService"
 
 export default function ExpensesPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
@@ -36,14 +37,15 @@ export default function ExpensesPage() {
   // Filters
   const [filterStatus, setFilterStatus] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterGroupId, setFilterGroupId] = useState("")
-  const [filterSplitType, setFilterSplitType] = useState("")
+  const [filterGroupId, setFilterGroupId] = useState("all")
+  const [filterSplitType, setFilterSplitType] = useState("all")
 
   // Form data for new expense
   const [formData, setFormData] = useState({
     description: "",
     amount: "",
     groupId: "",
+    paidById: "", // This should be set to current user ID
     splitType: "EQUAL",
     notes: "",
     splits: []
@@ -51,7 +53,7 @@ export default function ExpensesPage() {
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState("")
 
-  // Load expenses on component mount
+  // Load expenses on component mount and when filters change
   useEffect(() => {
     loadExpenses()
     loadStatistics()
@@ -62,8 +64,8 @@ export default function ExpensesPage() {
     const filtered = expenseHelpers.filterExpenses(expenses, {
       search: searchTerm,
       status: filterStatus,
-      groupId: filterGroupId,
-      splitType: filterSplitType
+      groupId: filterGroupId === "all" ? "" : filterGroupId,
+      splitType: filterSplitType === "all" ? "" : filterSplitType
     })
     setFilteredExpenses(filtered)
   }, [expenses, searchTerm, filterStatus, filterGroupId, filterSplitType])
@@ -84,23 +86,32 @@ export default function ExpensesPage() {
       if (filterStatus !== 'all') {
         params.isSettled = filterStatus === 'settled'
       }
-      if (filterGroupId) {
+      if (filterGroupId !== 'all') {
         params.groupId = filterGroupId
       }
-      if (filterSplitType) {
+      if (filterSplitType !== 'all') {
         params.splitType = filterSplitType
+      }
+      if (searchTerm) {
+        params.search = searchTerm
       }
 
       const response = await expenseService.getAllExpenses(params)
       
       if (response.success) {
-        setExpenses(response.data.expenses)
-        setPagination(response.data.pagination)
+        setExpenses(response.data.expenses || [])
+        setPagination(response.data.pagination || {
+          page: 1,
+          limit: 10,
+          total: response.data.expenses?.length || 0,
+          pages: 1
+        })
       } else {
         setError(response.message || 'Failed to load expenses')
       }
     } catch (err) {
       setError(err.message || 'Failed to load expenses')
+      console.error('Error loading expenses:', err)
     } finally {
       setLoading(false)
     }
@@ -108,7 +119,17 @@ export default function ExpensesPage() {
 
   const loadStatistics = async () => {
     try {
-      const response = await expenseService.getExpenseStatistics()
+      const params = {}
+      
+      // Add current filters to statistics params
+      if (filterStatus !== 'all') {
+        params.isSettled = filterStatus === 'settled'
+      }
+      if (filterGroupId !== 'all') {
+        params.groupId = filterGroupId
+      }
+
+      const response = await expenseService.getExpenseStatistics(params)
       if (response.success) {
         setStatistics(response.data)
       }
@@ -129,7 +150,17 @@ export default function ExpensesPage() {
         return
       }
 
-      const response = await expenseService.createExpense(formData)
+      // Prepare expense data
+      const expenseData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        // Add default splits if not provided (for equal split)
+        splits: formData.splits.length > 0 ? formData.splits : [
+          { userId: formData.paidById, amount: parseFloat(formData.amount) }
+        ]
+      }
+
+      const response = await expenseService.createExpense(expenseData)
       
       if (response.success) {
         setIsCreateDialogOpen(false)
@@ -141,6 +172,7 @@ export default function ExpensesPage() {
       }
     } catch (err) {
       setFormError(err.message || 'Failed to create expense')
+      console.error('Error creating expense:', err)
     } finally {
       setFormLoading(false)
     }
@@ -152,9 +184,12 @@ export default function ExpensesPage() {
       if (response.success) {
         loadExpenses()
         loadStatistics()
+      } else {
+        setError(response.message || 'Failed to settle expense')
       }
     } catch (err) {
       setError(err.message || 'Failed to settle expense')
+      console.error('Error settling expense:', err)
     }
   }
 
@@ -163,6 +198,7 @@ export default function ExpensesPage() {
       description: "",
       amount: "",
       groupId: "",
+      paidById: "", // This should be set to current user ID
       splitType: "EQUAL",
       notes: "",
       splits: []
@@ -272,7 +308,8 @@ export default function ExpensesPage() {
                         <SelectValue placeholder="Select group" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Personal Expense</SelectItem>
+                        <SelectItem value="Personal">Personal Expense</SelectItem>
+                        {/* These should be loaded dynamically from your groups API */}
                         <SelectItem value="weekend-trip">Weekend Trip</SelectItem>
                         <SelectItem value="roommates">Roommates</SelectItem>
                         <SelectItem value="office-lunch">Office Lunch</SelectItem>
@@ -342,6 +379,14 @@ export default function ExpensesPage() {
           >
             <AlertCircle className="h-5 w-5" />
             {error}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setError("")}
+              className="ml-auto text-red-600 hover:text-red-700"
+            >
+              Dismiss
+            </Button>
           </motion.div>
         )}
 
@@ -436,7 +481,7 @@ export default function ExpensesPage() {
                     <SelectValue placeholder="Split Type" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-slate-200">
-                    <SelectItem value="">All Types</SelectItem>
+                    <SelectItem value="all">All Types</SelectItem>
                     <SelectItem value="EQUAL">Equal Split</SelectItem>
                     <SelectItem value="PERCENTAGE">Percentage</SelectItem>
                     <SelectItem value="EXACT">Exact Amount</SelectItem>
@@ -466,11 +511,11 @@ export default function ExpensesPage() {
                 <Receipt className="h-16 w-16 text-slate-300 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-slate-700 mb-2">No expenses found</h3>
                 <p className="text-slate-500 mb-6">
-                  {searchTerm || filterStatus !== 'all' || filterSplitType 
+                  {searchTerm || filterStatus !== 'all' || filterSplitType !== 'all'
                     ? "No expenses match your current filters." 
                     : "Start by creating your first expense."}
                 </p>
-                {(!searchTerm && filterStatus === 'all' && !filterSplitType) && (
+                {(!searchTerm && filterStatus === 'all' && filterSplitType === 'all') && (
                   <Button 
                     onClick={() => setIsCreateDialogOpen(true)}
                     className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 rounded-xl"
@@ -527,7 +572,7 @@ export default function ExpensesPage() {
                             {expenseHelpers.getExpenseStatusText(expense)}
                           </Badge>
                           <span className="text-sm text-slate-600">
-                            {new Date(expense.date).toLocaleDateString()}
+                            {new Date(expense.date || expense.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
@@ -535,7 +580,7 @@ export default function ExpensesPage() {
                     <div className="mt-4 pt-4 border-t border-slate-100">
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-slate-600">
-                          Paid by <span className="font-medium text-slate-900">{expense.paidBy?.name}</span>
+                          Paid by <span className="font-medium text-slate-900">{expense.paidBy?.name || 'Unknown'}</span>
                           {expense.notes && (
                             <span className="ml-2 text-xs text-slate-500">• {expense.notes}</span>
                           )}
