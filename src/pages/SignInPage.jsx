@@ -8,6 +8,7 @@ import { Navbar } from '@/components/Navbar'
 import { useNavigate } from 'react-router'
 import { SignInForm } from '@/components/SignInForm'
 import axios from 'axios'
+import { useAuthStore } from '@/stores/userStore'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -43,7 +44,10 @@ export default function SignInPage(){
     try {
       const response = await axios.post('/api/v1/auth/sign-in', data)
       if (response.data.success) {
-        console.log("User signed in:", response.data)
+        console.log(response.data.data)
+        localStorage.setItem('user',JSON.stringify(response.data.data.user))
+        localStorage.setItem('token',response.data.data.accessToken)
+        useAuthStore.getState().setUser({user:response.data.data.user,token:response.data.data.accessToken  });
         navigate('/dashboard')
       } else {
         console.log("Invalid credentials")

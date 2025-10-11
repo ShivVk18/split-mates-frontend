@@ -55,9 +55,9 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, clear tokens and redirect to login
+        // Refresh failed, clear tokens and redirect to sign-in
         localStorage.removeItem('accessToken');
-        window.location.href = '/login';
+        window.location.href = '/sign-in';
         return Promise.reject(refreshError);
       }
     }
