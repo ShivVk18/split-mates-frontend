@@ -12,7 +12,7 @@ import {
 import useGroupStore from "@/stores/groupStore";
 import { Users } from "lucide-react";
 
-export function GroupCards() {
+export function GroupCards({ onViewGroup }) {
   const { groups, removeGroup } = useGroupStore();
 
   if (!groups || groups.length === 0) {
@@ -61,7 +61,8 @@ export function GroupCards() {
           <CardFooter className="flex gap-2 pt-2 pb-4 px-5">
             <Button
               type="button"
-              className="flex-1 bg-gradient-to-r from-slate-900 to-slate-700 hover:from-slate-800 hover:to-slate-600 text-white font-semibold rounded-xl shadow-md transition-all duration-300 h-9 text-sm"
+              className="flex-1 bg-gradient-to-r from-slate-900 to-slate-700 hover:from-slate-800 hover:to-slate-600 text-white font-semibold rounded-xl shadow-md transition-all duration-300 h-9 text-sm" 
+              onClick={()=>onViewGroup(group.id)}
             >
               View
             </Button>

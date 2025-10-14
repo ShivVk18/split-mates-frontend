@@ -36,7 +36,7 @@ const useFetch = (url) => {
     console.log("🎯 useFetch state ->", { data, loading, error });
   }, [data, loading, error]);
 
-  return [data, loading, error];
+  return [data, loading, error,fetchData];
 };
 
 export default useFetch;

@@ -1,3 +1,5 @@
+import groupService from "@/services/groupService";
+import { toast } from "sonner";
 import { create } from "zustand";
 
 const useGroupStore = create((set) => ({
@@ -19,8 +21,24 @@ const useGroupStore = create((set) => ({
   addGroup: (group) =>
     set((state) => ({ groups: [...state.groups, group] })),
 
-  removeGroup: (id) =>
-    set((state) => ({ groups: state.groups.filter((g) => g.id !== id) })),
+  removeGroup: async (id) => {
+    try {
+      
+      const response = await groupService.deleteGroup(id);
+
+     
+      set((state) => ({
+        groups: state.groups.filter((g) => g.id !== id),
+      }));
+
+      toast.success("Group deleted successfully ✅");
+      return response;
+    } catch (error) {
+      console.error("Failed to delete group:", error);
+      toast.error(error?.message || "Failed to delete group ❌");
+      throw error;
+    }
+  },
 }));
 
 export default useGroupStore;

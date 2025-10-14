@@ -34,6 +34,7 @@ export default function Layout() {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { id: "friends", label: "Friends", icon: Users, path: "/friends" },
     { id: "groups", label: "Groups", icon: Users, path: "/groups" },
+    
     { id: "expenses", label: "Expenses", icon: Receipt, path: "/expenses" },
     { id: "settlements", label: "Settlements", icon: CreditCard, path: "/settlements" },
     { id: "reports", label: "Reports", icon: BarChart3, path: "/reports" },
