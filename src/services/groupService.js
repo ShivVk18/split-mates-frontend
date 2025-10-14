@@ -125,6 +125,20 @@ export const groupService = {
       throw error.response?.data || error
     }
   },
+
+  
+
+  // View group invite (no auth required)
+  viewGroupInvite: async (token) => {
+    try {
+      const response = await api.get(`/groups/invite/${token}`)
+      return response.data
+    } catch (error) {
+      throw error.response?.data || error
+    }
+  },
+
+  
 }
 
 export default groupService

@@ -19,23 +19,22 @@ import {
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { groupSchema } from "@/utils/zodSchema";
 
-
-const GroupForm = ({ onClose,onSubmit }) => {
+const EditGroupModal = ({ group, onClose, onUpdate }) => {
   const form = useForm({
     resolver: zodResolver(groupSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      category: "GENERAL",
-      currency: "INR",
+      name: group?.name || "",
+      description: group?.description || "",
+      category: group?.category || "GENERAL",
+      currency: group?.currency || "INR",
     },
-  });  
+  });
 
-
-  
+  const onSubmit = async (data) => {
+    await onUpdate(group.id, data);
+  };
 
   const GroupCategory = [
     { label: "General", value: "GENERAL" },
@@ -55,8 +54,6 @@ const GroupForm = ({ onClose,onSubmit }) => {
     { label: "Other", value: "OTHER" },
   ];
 
-  
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
       {/* Backdrop */}
@@ -71,10 +68,10 @@ const GroupForm = ({ onClose,onSubmit }) => {
         <div className="flex items-center justify-between p-6 border-b border-slate-200 sticky top-0 bg-white rounded-t-xl z-10">
           <div>
             <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
-              Create New Group
+              Edit Group
             </h2>
             <p className="text-sm text-slate-600 mt-1">
-              Fill in the details to create your group
+              Update group details
             </p>
           </div>
           <button
@@ -172,7 +169,7 @@ const GroupForm = ({ onClose,onSubmit }) => {
                   type="submit"
                   className="flex-1 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
                 >
-                  Create Group
+                  Update Group
                 </Button>
               </div>
             </form>
@@ -183,4 +180,4 @@ const GroupForm = ({ onClose,onSubmit }) => {
   );
 };
 
-export default GroupForm;
+export default EditGroupModal;

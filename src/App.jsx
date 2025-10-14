@@ -16,6 +16,7 @@ import SettingPage from "./pages/SettingPage";
 import FriendsPage from "./pages/FriendsPage";
 import Layout from "./components/Common/Layout";
 import ReportsPage from "./pages/ReportsPage";
+import GroupInvitePage from "./components/Group/GroupInvitePage";
 
 function App() {
   return (
@@ -29,7 +30,9 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="friends" element={<FriendsPage />} />
           <Route path="groups" element={<GroupsPage />} />
-          <Route path="groups/:id" element={<GroupDetailsPage />} />
+          <Route path="groups/:id" element={<GroupsPage />} />
+          
+           
           <Route path="expenses" element={<ExpensePage />} />
           <Route path="settlements" element={<SettlementPage />} />
           <Route path="reports" element={<ReportsPage />} />
