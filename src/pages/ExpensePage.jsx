@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import useFetch from "@/hooks/useFetch";
-import useExpenseStore from "@/stores/expenseStore"; // ← Import expense store
+import useExpenseStore from "@/stores/expenseStore";
 import { ExpenseCards } from "@/components/Expense/ExpenseCard";
 import AddExpense from "@/components/Expense/AddExpenseForm";
 import expenseService from "@/services/expenseService";
@@ -9,24 +10,26 @@ import { toast } from "sonner";
 
 
 const ExpensePage = () => {
+  const navigate = useNavigate();
+  
   // Fetch expenses
   const [expenseData, loading, error, fetchData] = useFetch("/expenses/");
   const { setExpenses, setPagination, totalExpenseAmount } = useExpenseStore();
-  
+    
   // Fetch groups for form dropdown
   const [groupData, groupLoading] = useFetch("/groups/");
 
   // Modal states
   const [showExpenseForm, setShowExpenseForm] = useState(false);
-  const [selectedExpense, setSelectedExpense] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Sync data to Zustand - FIX THIS PART
+  // Sync data to Zustand
   useEffect(() => {
-    if (expenseData?.data?.expenses) {
-      console.log("📊 Setting expenses:", expenseData.data.expenses);
-      setExpenses(expenseData.data.expenses);
-      setPagination(expenseData.data); 
+    console.log("Original Data->>>>", expenseData);
+    if (expenseData?.expenses) {
+      console.log("📊 Setting expenses:", expenseData.expenses);
+      setExpenses(expenseData.expenses);
+      setPagination(expenseData.pagination); 
     }
   }, [expenseData, setExpenses, setPagination]);
 
@@ -34,9 +37,9 @@ const ExpensePage = () => {
   const handleExpenseForm = () => setShowExpenseForm(true);
   const closeExpenseForm = () => setShowExpenseForm(false);  
 
-   const { expenses,removeExpense } = useExpenseStore(); 
+  const { expenses } = useExpenseStore(); 
 
-   console.log("EXPENSES STORE=>>>>",expenses)
+  console.log("EXPENSES STORE=>>>>", expenses);
 
   // Create new expense
   const onSubmit = async (data) => {
@@ -53,15 +56,9 @@ const ExpensePage = () => {
     }
   };
 
-  // View expense details
-  const handleViewExpense = async (expenseId) => {
-    try {
-      const response = await expenseService.getExpenseById(expenseId);
-      setSelectedExpense(response.data);
-      // TODO: Open view modal
-    } catch (error) {
-      toast.error(error.message || "Failed to load expense details");
-    }
+  // View expense details - UPDATED TO NAVIGATE
+  const handleViewExpense = (expenseId) => {
+    navigate(`/expenses/${expenseId}`);
   };
 
   // Pagination
