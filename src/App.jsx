@@ -17,6 +17,7 @@ import FriendsPage from "./pages/FriendsPage";
 import Layout from "./components/Common/Layout";
 import ReportsPage from "./pages/ReportsPage";
 import GroupInvitePage from "./components/Group/GroupInvitePage";
+import ViewExpense from "./components/Expense/ViewExpense";
 
 function App() {
   return (
@@ -30,10 +31,11 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="friends" element={<FriendsPage />} />
           <Route path="groups" element={<GroupsPage />} />
-          <Route path="groups/:id" element={<GroupsPage />} />
+          
           
            
           <Route path="expenses" element={<ExpensePage />} />
+          <Route path="expenses/:id" element={<ViewExpense />} />
           <Route path="settlements" element={<SettlementPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<SettingPage />} />
