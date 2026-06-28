@@ -224,7 +224,7 @@ export default function Layout() {
       </motion.div>
 
       {/* Main Content Area - FIXED */}
-      <div className={`${isSidebarCollapsed ? 'ml-20' : 'ml-80'} pt-20 transition-all duration-300 relative z-10`}>
+      <div className={`${isSidebarCollapsed ? 'ml-20' : 'ml-80'} pt-20 transition-all duration-300`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

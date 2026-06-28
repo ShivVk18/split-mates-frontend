@@ -87,162 +87,217 @@ const CreateSettlementForm = ({ onClose, onSubmit, groups, balanceData, loading 
   console.log(balanceData)
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-teal-600 text-white px-6 py-4 flex justify-between items-center rounded-t-2xl">
-          <h2 className="text-2xl font-bold">Create Settlement</h2>
-          <button
-            onClick={onClose}
-            className="hover:bg-white/20 p-2 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+   <div className="fixed inset-0 z-[9999]  flex items-center justify-center p-4 animate-in fade-in duration-200">
+
+    {/* Backdrop */}
+    <div
+      className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+      onClick={onClose}
+    />
+
+    {/* Modal */}
+    <div className="relative z-[9999] w-full max-w-lg bg-white rounded-xl shadow-2xl">
+
+      {/* Header */}
+      <div className="flex items-center justify-between p-6 border-b border-slate-200 sticky top-0 bg-white rounded-t-xl z-10">
+        <div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
+            Create Settlement
+          </h2>
+          <p className="text-sm text-slate-600 mt-1">
+            Settle balances with your friends
+          </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Group Selection */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
-              <Users className="w-4 h-4" />
-              Group (Optional)
-            </label>
-            <select
-              value={formData.groupId}
-              onChange={(e) => handleGroupChange(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              disabled={loading}
-            >
-              <option value="">Select a group</option>
-              {groups.map((group) => (
-                <option key={group.id} value={group.id}>
-                  {group.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        <button
+          onClick={onClose}
+          className="rounded-full p-2 hover:bg-slate-100 transition-colors"
+        >
+          <X className="h-5 w-5 text-slate-500" />
+        </button>
+      </div>
 
-          {/* Pay To Selection */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
-              <Users className="w-4 h-4" />
-              Pay To <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={formData.paidToId}
-              onChange={(e) => handleChange("paidToId", e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                errors.paidToId ? "border-red-500" : "border-slate-300"
+      {/* FORM */}
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+
+        {/* Group */}
+        <div>
+          <label className="text-sm font-medium text-slate-700 mb-2 block">
+            Group (Optional)
+          </label>
+
+          <select
+            value={formData.groupId}
+            onChange={(e) => handleGroupChange(e.target.value)}
+            disabled={loading}
+            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
+          >
+            <option value="">Select Group</option>
+            {groups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Pay To */}
+        <div>
+          <label className="text-sm font-medium text-slate-700 mb-2 block">
+            Pay To <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            value={formData.paidToId}
+            onChange={(e) =>
+              handleChange("paidToId", e.target.value)
+            }
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-600 outline-none ${
+              errors.paidToId
+                ? "border-red-500"
+                : "border-slate-300"
+            }`}
+          >
+            <option value="">Select Person</option>
+
+            {balanceData?.relationships?.map((r) => (
+              <option key={r.user.id} value={r.user.id}>
+                {r.user.name}
+                {r.youOwe > 0 &&
+                  ` (You owe ₹${r.youOwe})`}
+              </option>
+            ))}
+          </select>
+
+          {errors.paidToId && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.paidToId}
+            </p>
+          )}
+        </div>
+
+        {/* Amount */}
+        <div>
+          <label className="text-sm font-medium text-slate-700 mb-2 block">
+            Amount *
+          </label>
+
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">
+              ₹
+            </span>
+
+            <input
+              type="number"
+              step="0.01"
+              value={formData.amount}
+              onChange={(e) =>
+                handleChange("amount", e.target.value)
+              }
+              placeholder="0.00"
+              className={`w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-600 outline-none ${
+                errors.amount
+                  ? "border-red-500"
+                  : "border-slate-300"
               }`}
-            >
-              <option value="">Select a person</option>
-              {balanceData?.relationships?.map((relationship) => (
-                <option key={relationship.user.id} value={relationship.user.id}>
-                  {relationship.user.name} 
-                  {relationship.youOwe > 0 && ` (You owe: ₹${relationship.youOwe})`}
-                </option>
-              ))}
-            </select>
-            {errors.paidToId && (
-              <p className="text-red-500 text-sm mt-1">{errors.paidToId}</p>
-            )}
-          </div>
-
-          {/* Amount */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
-              <DollarSign className="w-4 h-4" />
-              Amount <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">
-                ₹
-              </span>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.amount}
-                onChange={(e) => handleChange("amount", e.target.value)}
-                placeholder="0.00"
-                className={`w-full pl-8 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                  errors.amount ? "border-red-500" : "border-slate-300"
-                }`}
-              />
-            </div>
-            {errors.amount && (
-              <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
-            )}
-            {suggestedAmount > 0 && (
-              <button
-                type="button"
-                onClick={() => handleChange("amount", suggestedAmount.toString())}
-                className="mt-2 text-sm text-blue-600 hover:underline"
-              >
-                Use suggested amount: ₹{suggestedAmount}
-              </button>
-            )}
-          </div>
-
-          {/* Payment Method */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
-              <CreditCard className="w-4 h-4" />
-              Payment Method <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={formData.method}
-              onChange={(e) => handleChange("method", e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                errors.method ? "border-red-500" : "border-slate-300"
-              }`}
-            >
-              {paymentMethods.map((method) => (
-                <option key={method.value} value={method.value}>
-                  {method.label}
-                </option>
-              ))}
-            </select>
-            {errors.method && (
-              <p className="text-red-500 text-sm mt-1">{errors.method}</p>
-            )}
-          </div>
-
-          {/* Note */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
-              <FileText className="w-4 h-4" />
-              Note (Optional)
-            </label>
-            <textarea
-              value={formData.note}
-              onChange={(e) => handleChange("note", e.target.value)}
-              placeholder="Add a note about this settlement..."
-              rows={3}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 resize-none"
             />
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-4">
-            <Button
+          {errors.amount && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.amount}
+            </p>
+          )}
+
+          {suggestedAmount > 0 && (
+            <button
               type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
+              onClick={() =>
+                handleChange(
+                  "amount",
+                  suggestedAmount.toString()
+                )
+              }
+              className="mt-2 text-sm text-blue-600 hover:underline"
             >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white"
-            >
-              Create Settlement
-            </Button>
-          </div>
-        </form>
-      </div>
+              Use suggested amount ₹{suggestedAmount}
+            </button>
+          )}
+        </div>
+
+        {/* Payment Method */}
+        <div>
+          <label className="text-sm font-medium text-slate-700 mb-2 block">
+            Payment Method *
+          </label>
+
+          <select
+            value={formData.method}
+            onChange={(e) =>
+              handleChange("method", e.target.value)
+            }
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-600 outline-none ${
+              errors.method
+                ? "border-red-500"
+                : "border-slate-300"
+            }`}
+          >
+            {paymentMethods.map((method) => (
+              <option
+                key={method.value}
+                value={method.value}
+              >
+                {method.label}
+              </option>
+            ))}
+          </select>
+
+          {errors.method && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.method}
+            </p>
+          )}
+        </div>
+
+        {/* Note */}
+        <div>
+          <label className="text-sm font-medium text-slate-700 mb-2 block">
+            Note
+          </label>
+
+          <textarea
+            rows={3}
+            value={formData.note}
+            onChange={(e) =>
+              handleChange("note", e.target.value)
+            }
+            placeholder="Add a note..."
+            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none resize-none"
+          />
+        </div>
+
+        {/* Footer */}
+        <div className="flex gap-3 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            className="flex-1 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
+          >
+            Create Settlement
+          </Button>
+        </div>
+
+      </form>
     </div>
+  </div>
   );
 };
 

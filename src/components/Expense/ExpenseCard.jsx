@@ -1,159 +1,377 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Users, Calendar, DollarSign, Tag } from "lucide-react";
+import { Users, Calendar, DollarSign, Tag, Eye, Trash2, CheckCircle2, Clock } from "lucide-react";
 import useExpenseStore from "@/stores/expenseStore";
 
-export function ExpenseCards({  onViewExpense }) {
+// ── Inline styles via a <style> tag for font + keyframe imports ──────────────
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-    const { expenses,removeExpense } = useExpenseStore();
-  if (!expenses || expenses.length === 0) {
-    return (
-      <div className="text-center text-slate-500 py-8">
-        No Expenses Found
-      </div>
-    );
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
 
+  .expense-card {
+    font-family: 'DM Sans', sans-serif;
+    animation: cardIn 0.45s ease both;
+  }
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
+  .expense-card:hover .card-shine {
+    opacity: 1;
+  }
 
-  const formatAmount = (amount, currency) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: currency || "INR",
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
+  .amount-text {
+    font-family: 'DM Serif Display', serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .delete-btn:hover {
+    background: #fff1f0 !important;
+    color: #cf1322 !important;
+    border-color: #ffa39e !important;
+  }
+
+  .view-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(15,52,96,0.25) !important;
+  }
+
+  .tag-chip {
+    background: linear-gradient(135deg, #e8f4fd, #dbeafe);
+  }
+`;
+
+// ── Category color palette ───────────────────────────────────────────────────
+const categoryColors = [
+  { bg: "#f0fdf4", border: "#bbf7d0", text: "#166534" },
+  { bg: "#eff6ff", border: "#bfdbfe", text: "#1e40af" },
+  { bg: "#fdf4ff", border: "#e9d5ff", text: "#6b21a8" },
+  { bg: "#fff7ed", border: "#fed7aa", text: "#9a3412" },
+  { bg: "#fefce8", border: "#fde68a", text: "#92400e" },
+];
+
+function hashColor(str = "") {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return categoryColors[Math.abs(hash) % categoryColors.length];
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const formatDate = (dateString) =>
+  new Date(dateString).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+const formatAmount = (amount, currency = "INR") =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(amount);
+
+// ── Card ─────────────────────────────────────────────────────────────────────
+function ExpenseCard({ expense, onViewExpense, removeExpense, index }) {
+  const groupColor = hashColor(expense.group?.name);
+
+  return (
+    <div
+      className="expense-card"
+      style={{
+        animationDelay: `${index * 60}ms`,
+        position: "relative",
+        width: "100%",
+        maxWidth: "360px",
+        borderRadius: "20px",
+        background: "#ffffff",
+        border: "1px solid #e8eaf0",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.8) inset",
+        overflow: "hidden",
+        transition: "box-shadow 0.3s ease, transform 0.3s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset";
+        e.currentTarget.style.transform = "translateY(-3px)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.8) inset";
+        e.currentTarget.style.transform = "translateY(0)";
+      }}
+    >
+      {/* Top accent strip */}
+      <div style={{
+        height: "3px",
+        background: expense.isSettled
+          ? "linear-gradient(90deg, #52c41a, #95de64)"
+          : "linear-gradient(90deg, #0f3460, #533483)",
+      }} />
+
+      {/* Header */}
+      <div style={{ padding: "18px 20px 12px" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "10px" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h3 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: "18px",
+              fontWeight: 400,
+              color: "#111827",
+              margin: 0,
+              lineHeight: 1.3,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}>
+              {expense.description}
+            </h3>
+            <p style={{
+              margin: "4px 0 0",
+              fontSize: "12px",
+              color: "#9ca3af",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}>
+              <Calendar size={11} />
+              {formatDate(expense.date)}
+            </p>
+          </div>
+
+          {/* Status badge */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            padding: "4px 10px",
+            borderRadius: "20px",
+            fontSize: "11px",
+            fontWeight: 600,
+            letterSpacing: "0.03em",
+            flexShrink: 0,
+            background: expense.isSettled ? "#f6ffed" : "#fff9e6",
+            color: expense.isSettled ? "#389e0d" : "#d46b08",
+            border: `1px solid ${expense.isSettled ? "#b7eb8f" : "#ffd591"}`,
+          }}>
+            {expense.isSettled
+              ? <><CheckCircle2 size={11} /> Settled</>
+              : <><Clock size={11} /> Pending</>}
+          </div>
+        </div>
+      </div>
+
+      {/* Amount block */}
+      <div style={{ padding: "0 20px 14px" }}>
+        <div style={{
+          background: "linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%)",
+          borderRadius: "14px",
+          padding: "14px 16px",
+          border: "1px solid #e0e7ff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}>
+          <div>
+            <p style={{ margin: 0, fontSize: "11px", color: "#6b7280", fontWeight: 500, marginBottom: "2px" }}>
+              Total Amount
+            </p>
+            <p className="amount-text" style={{ margin: 0, fontSize: "26px", lineHeight: 1.1 }}>
+              {formatAmount(expense.amount, expense.currency)}
+            </p>
+          </div>
+          <div style={{
+            width: "42px",
+            height: "42px",
+            borderRadius: "12px",
+            background: "linear-gradient(135deg, #0f3460, #533483)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            <DollarSign size={20} color="white" strokeWidth={1.5} />
+          </div>
+        </div>
+      </div>
+
+      {/* Info row */}
+      <div style={{ padding: "0 20px 14px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+        {[
+          { label: "Paid By", value: expense.paidBy?.name || "Unknown" },
+          { label: "Split Type", value: expense.splitType },
+        ].map(({ label, value }) => (
+          <div key={label} style={{
+            background: "#f9fafb",
+            borderRadius: "10px",
+            padding: "10px 12px",
+            border: "1px solid #f0f0f0",
+          }}>
+            <p style={{ margin: 0, fontSize: "10px", color: "#9ca3af", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              {label}
+            </p>
+            <p style={{ margin: "3px 0 0", fontSize: "13px", fontWeight: 600, color: "#1f2937", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {value}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Group + participants row */}
+      <div style={{ padding: "0 20px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {expense.group && (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "5px 10px",
+            borderRadius: "20px",
+            background: groupColor.bg,
+            border: `1px solid ${groupColor.border}`,
+            maxWidth: "60%",
+          }}>
+            <Tag size={11} color={groupColor.text} />
+            <span style={{
+              fontSize: "12px",
+              fontWeight: 600,
+              color: groupColor.text,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}>
+              {expense.group.name}
+            </span>
+          </div>
+        )}
+
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "5px",
+          padding: "5px 10px",
+          borderRadius: "20px",
+          background: "#f3f4f6",
+          border: "1px solid #e5e7eb",
+          marginLeft: expense.group ? "auto" : 0,
+        }}>
+          <Users size={12} color="#6b7280" />
+          <span style={{ fontSize: "12px", fontWeight: 600, color: "#374151" }}>
+            {expense.splits?.length || 0} {expense.splits?.length === 1 ? "person" : "people"}
+          </span>
+        </div>
+      </div>
+
+      {/* Notes */}
+      {expense.notes && (
+        <div style={{ padding: "0 20px 14px" }}>
+          <div style={{
+            background: "#fafafa",
+            borderRadius: "10px",
+            padding: "10px 12px",
+            border: "1px solid #f0f0f0",
+            borderLeft: "3px solid #c7d2fe",
+          }}>
+            <p style={{ margin: 0, fontSize: "12px", color: "#6b7280", lineHeight: 1.5,
+              display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+              {expense.notes}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Divider */}
+      <div style={{ height: "1px", background: "#f3f4f6", margin: "0 20px" }} />
+
+      {/* Actions */}
+      <div style={{ padding: "12px 20px 16px", display: "flex", gap: "8px" }}>
+        <button
+          className="view-btn"
+          onClick={() => onViewExpense(expense.id)}
+          style={{
+            flex: 1,
+            height: "38px",
+            border: "none",
+            borderRadius: "12px",
+            background: "linear-gradient(135deg, #0f3460, #533483)",
+            color: "white",
+            fontSize: "13px",
+            fontWeight: 600,
+            fontFamily: "'DM Sans', sans-serif",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            transition: "all 0.2s ease",
+            boxShadow: "0 4px 12px rgba(15,52,96,0.18)",
+          }}
+        >
+          <Eye size={14} />
+          View Details
+        </button>
+        <button
+          className="delete-btn"
+          onClick={() => removeExpense(expense.id)}
+          style={{
+            flex: 1,
+            height: "38px",
+            border: "1.5px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "white",
+            color: "#6b7280",
+            fontSize: "13px",
+            fontWeight: 600,
+            fontFamily: "'DM Sans', sans-serif",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            transition: "all 0.2s ease",
+          }}
+        >
+          <Trash2 size={14} />
+          Delete
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main export ──────────────────────────────────────────────────────────────
+export function ExpenseCards({ onViewExpense }) {
+  const { expenses, removeExpense } = useExpenseStore();
 
   return (
     <>
-      {expenses.map((expense) => (
-        <Card
-          key={expense.id}
-          className="w-full max-w-sm rounded-2xl shadow-lg bg-white border border-slate-200/60 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
-        >
-          <CardHeader className="pb-2 pt-4 px-5">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <CardTitle className="text-lg font-bold text-slate-900 truncate">
-                  {expense.description}
-                </CardTitle>
-                <CardDescription className="text-slate-500 mt-0.5 text-xs flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  {formatDate(expense.date)}
-                </CardDescription>
-              </div>
-              <div
-                className={`px-2 py-1 rounded-full text-xs font-semibold shrink-0 ${
-                  expense.isSettled
-                    ? "bg-green-100 text-green-700 border border-green-200"
-                    : "bg-amber-100 text-amber-700 border border-amber-200"
-                }`}
-              >
-                {expense.isSettled ? "Settled" : "Pending"}
-              </div>
-            </div>
-          </CardHeader>
+      <style>{styles}</style>
 
-          <CardContent className="py-2.5 px-5">
-            {/* Amount Section */}
-            <div className="bg-gradient-to-br from-blue-50 to-teal-50 rounded-xl p-3 border border-blue-200/50 mb-2.5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-medium text-slate-600 mb-0.5">
-                    Total Amount
-                  </div>
-                  <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
-                    {formatAmount(expense.amount, expense.currency)}
-                  </div>
-                </div>
-                <DollarSign className="w-8 h-8 text-blue-600/20" />
-              </div>
-            </div>
-
-            {/* Details Grid */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/50">
-                <div className="text-xs font-medium text-slate-500 mb-0.5">
-                  Paid By
-                </div>
-                <div className="text-sm font-bold text-slate-900 truncate">
-                  {expense.paidBy?.name || "Unknown"}
-                </div>
-              </div>
-              <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/50">
-                <div className="text-xs font-medium text-slate-500 mb-0.5">
-                  Split Type
-                </div>
-                <div className="text-sm font-bold text-slate-900">
-                  {expense.splitType}
-                </div>
-              </div>
-            </div>
-
-            {/* Group & Splits Info */}
-            <div className="mt-2.5 flex items-center justify-between text-xs">
-              {expense.group && (
-                <div className="flex items-center gap-1 text-slate-600">
-                  <Tag className="w-3.5 h-3.5" />
-                  <span className="font-medium truncate max-w-[120px]">
-                    {expense.group.name}
-                  </span>
-                </div>
-              )}
-              <div className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-full border border-slate-200">
-                <Users className="w-3.5 h-3.5 text-slate-600" />
-                <span className="font-semibold text-slate-700">
-                  {expense.splits?.length || 0}
-                </span>
-              </div>
-            </div>
-
-            {/* Notes Preview */}
-            {expense.notes && (
-              <div className="mt-2.5 bg-slate-50 rounded-lg p-2 border border-slate-200/50">
-                <div className="text-xs text-slate-600 line-clamp-2">
-                  {expense.notes}
-                </div>
-              </div>
-            )}
-          </CardContent>
-
-          <CardFooter className="flex gap-2 pt-2 pb-4 px-5">
-            <Button
-              type="button"
-              className="flex-1 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-semibold rounded-xl shadow-md transition-all duration-300 h-9 text-sm"
-              onClick={() => onViewExpense(expense.id)}
-            >
-              View Details
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => removeExpense(expense.id)}
-              className="flex-1 border-2 border-slate-200 text-slate-700 hover:bg-red-50 hover:border-red-200 hover:text-red-600 font-semibold rounded-xl transition-all duration-300 h-9 text-sm"
-            >
-              Delete
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
+      {!expenses || expenses.length === 0 ? (
+        <div style={{
+          fontFamily: "'DM Sans', sans-serif",
+          textAlign: "center",
+          color: "#9ca3af",
+          padding: "48px 0",
+          fontSize: "15px",
+        }}>
+          No expenses yet — add one to get started.
+        </div>
+      ) : (
+        expenses.map((expense, index) => (
+          <ExpenseCard
+            key={expense.id}
+            expense={expense}
+            index={index}
+            onViewExpense={onViewExpense}
+            removeExpense={removeExpense}
+          />
+        ))
+      )}
     </>
   );
 }
