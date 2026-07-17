@@ -19,7 +19,7 @@ const OptimalSettlementModal = ({ groups, onClose, onCalculate, selectedGroupDat
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-card text-foreground rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 flex justify-between items-center rounded-t-2xl">
           <div className="flex items-center gap-2">
@@ -55,7 +55,7 @@ const OptimalSettlementModal = ({ groups, onClose, onCalculate, selectedGroupDat
               <select
                 value={selectedGroup}
                 onChange={(e) => setSelectedGroup(e.target.value)}
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-full px-4 py-3 border border-input bg-card text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
               >
                 <option value="">Choose a group...</option>
                 {groups.map((group) => (

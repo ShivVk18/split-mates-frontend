@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,11 +15,21 @@ const fadeInUp = {
   transition: { duration: 0.5, ease: "easeOut" }
 }
 
-export default function SignInPage(){ 
+export default function SignInPage() { 
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const [isNavbarVisible, setIsNavbarVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
+
+  // Initialize theme on mount to avoid flash
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
 
   // Navbar scroll handler
   useEffect(() => {
@@ -38,16 +47,14 @@ export default function SignInPage(){
     return () => window.removeEventListener('scroll', handleScroll)
   }, [lastScrollY])
 
-  // ✅ Parent handles submission
   const handleSignInSubmit = async (data) => {
     setIsLoading(true)
     try {
       const response = await axios.post('/api/v1/auth/sign-in', data)
       if (response.data.success) {
-        console.log(response.data.data)
-        localStorage.setItem('user',JSON.stringify(response.data.data.user))
-        localStorage.setItem('token',response.data.data.accessToken)
-        useAuthStore.getState().setUser({user:response.data.data.user,token:response.data.data.accessToken  });
+        localStorage.setItem('user', JSON.stringify(response.data.data.user))
+        localStorage.setItem('token', response.data.data.accessToken)
+        useAuthStore.getState().setUser({ user: response.data.data.user, token: response.data.data.accessToken });
         navigate('/dashboard')
       } else {
         console.log("Invalid credentials")
@@ -60,21 +67,10 @@ export default function SignInPage(){
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 overflow-x-hidden">
-      {/* Floating Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div 
-          animate={{ y: [0, -20, 0], x: [0, 10, 0], rotate: [0, 5, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-blue-400/20 to-teal-400/20 rounded-full blur-xl"
-        />
-        <motion.div 
-          animate={{ y: [0, 20, 0], x: [0, -10, 0], rotate: [0, -5, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute top-40 right-20 w-32 h-32 bg-gradient-to-r from-teal-400/20 to-blue-400/20 rounded-full blur-xl"
-        />
-      </div>
-
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-200 overflow-x-hidden relative flex items-center justify-center">
+      {/* Background Dots Pattern */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(ellipse_at_center,var(--foreground)_1px,transparent_1px)] bg-[size:24px_24px]" />
+      
       {/* Navbar */}
       <AnimatePresence>
         {isNavbarVisible && (
@@ -91,28 +87,26 @@ export default function SignInPage(){
       </AnimatePresence>
 
       {/* Main Content */}
-      <div className="flex items-center justify-center min-h-screen pt-24 pb-12 px-4">
+      <div className="relative z-10 w-full max-w-md px-4 py-12 pt-32">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-md"
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <Card className="border-slate-200 bg-white/90 backdrop-blur-xl shadow-2xl">
+          <Card className="border-border bg-card/60 backdrop-blur-md shadow-sm">
             <CardHeader className="text-center pb-6">
               <motion.div {...fadeInUp}>
-                <Badge className="mb-4 bg-blue-50 text-blue-700 border-blue-200 mx-auto">
-                  <Sparkles className="h-3 w-3 mr-1" />
+                <Badge className="mb-4 bg-muted border border-border text-foreground mx-auto">
                   Welcome Back
                 </Badge>
               </motion.div>
               <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
-                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
+                <CardTitle className="text-xl font-bold text-foreground">
                   Sign In to Continue
                 </CardTitle>
               </motion.div>
               <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
-                <CardDescription className="text-slate-600">
+                <CardDescription className="text-muted-foreground text-xs">
                   Access your expense groups and smart bill splitting
                 </CardDescription>
               </motion.div>
@@ -126,14 +120,13 @@ export default function SignInPage(){
                     onSubmit={handleSignInSubmit}
                   />
                 </AnimatePresence>
-
                 
-                <div className="text-center pt-4 border-t border-slate-200">
-                  <p className="text-slate-600 mb-2">Don't have an account?</p>
+                <div className="text-center pt-4 border-t border-border">
+                  <p className="text-xs text-muted-foreground mb-1">Don't have an account?</p>
                   <Button
                     onClick={() => navigate('/sign-up')}
                     variant="link"
-                    className="text-blue-600 hover:text-blue-700 font-semibold"
+                    className="text-foreground hover:underline text-xs font-semibold"
                   >
                     Create Account
                   </Button>

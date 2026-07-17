@@ -145,29 +145,29 @@ const SettlementPage = () => {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 mb-8">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8">
         <div>
-          <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-blue-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
             Settlements
           </h1>
-          <p className="text-slate-600">Track and manage your payment settlements</p>
+          <p className="text-xs text-muted-foreground">Track and manage your payment settlements</p>
         </div>
         <div className="flex gap-3">
           <Button
             size="sm"
             variant="outline"
             onClick={() => setShowOptimalModal(true)}
-            className="border-blue-600 text-blue-600 hover:bg-blue-50"
+            className="border-border text-foreground hover:bg-accent rounded-full cursor-pointer px-4 text-xs font-semibold"
           >
-            <ArrowRight className="w-4 h-4 mr-2" />
+            <ArrowRight className="w-3.5 h-3.5 mr-2" />
             Optimal Settlement
           </Button>
           <Button
             size="sm"
             onClick={handleOpenSettlementForm}
-            className="bg-gradient-to-r from-blue-600 to-teal-600 text-white"
+            className="bg-foreground text-background hover:bg-foreground/90 font-bold rounded-full cursor-pointer px-5 py-2 text-xs"
           >
             Create Settlement
           </Button>
@@ -177,7 +177,7 @@ const SettlementPage = () => {
       {/* Balance Summary */}
       {!balanceLoading && balanceData && (
         <BalanceSummaryCard 
-          balanceData={balanceData.data}
+          balanceData={balanceData}
           onCreateSettlement={handleOpenSettlementForm}
         />
       )}
@@ -185,44 +185,41 @@ const SettlementPage = () => {
       {/* Group Filter */}
       {groupData?.groups?.length > 0 && (
         <div className="mb-6 flex items-center gap-3">
-          <Filter className="w-4 h-4 text-slate-600" />
+          <Filter className="w-4 h-4 text-muted-foreground" />
           <select
             value={selectedGroup || ""}
             onChange={(e) => handleGroupFilter(e.target.value || null)}
-            className="px-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="px-4 py-2 border border-border bg-card text-foreground rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-foreground/15"
           >
             <option value="">All Groups</option>
             {groupData.groups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
+              <option key={group.id} value={group.id}>{group.name}</option>
             ))}
           </select>
         </div>
       )}
 
-      {/* Tabs for filtering */}
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-        <TabsList className="grid w-full max-w-md grid-cols-3">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
+      <Tabs defaultValue="all" onValueChange={handleTabChange} className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-3 h-11 bg-muted p-1 rounded-xl">
+          <TabsTrigger value="all" className="h-full py-0 cursor-pointer rounded-lg">All</TabsTrigger>
+          <TabsTrigger value="pending" className="h-full py-0 cursor-pointer rounded-lg">Pending</TabsTrigger>
+          <TabsTrigger value="completed" className="h-full py-0 cursor-pointer rounded-lg">Completed</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-6">
           {/* Loading State */}
           {loading && (
             <div className="flex justify-center items-center h-48">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-              <p className="ml-3 text-slate-600 font-medium">Loading Settlements...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
+              <p className="ml-3 text-muted-foreground text-xs font-medium">Loading Settlements...</p>
             </div>
           )}
 
           {/* Error State */}
           {error && !loading && (
-            <div className="text-center text-red-500 py-8">
-              <p className="font-medium">Failed to load settlements 😢</p>
-              <Button onClick={() => fetchData()} className="mt-3 bg-blue-600 text-white">
+            <div className="text-center text-destructive py-8">
+              <p className="font-medium text-xs">Failed to load settlements 😢</p>
+              <Button onClick={() => fetchData()} className="mt-3 bg-foreground text-background hover:bg-foreground/90 font-bold text-xs rounded-full px-4 cursor-pointer">
                 Retry
               </Button>
             </div>
@@ -241,10 +238,10 @@ const SettlementPage = () => {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-slate-500 text-lg">No settlements found</p>
+                  <p className="text-muted-foreground text-xs">No settlements found</p>
                   <Button 
                     onClick={handleOpenSettlementForm}
-                    className="mt-4 bg-blue-600 text-white"
+                    className="mt-4 bg-foreground text-background hover:bg-foreground/90 font-bold text-xs rounded-full px-5 py-2 cursor-pointer"
                   >
                     Create Your First Settlement
                   </Button>

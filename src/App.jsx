@@ -31,9 +31,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="friends" element={<FriendsPage />} />
           <Route path="groups" element={<GroupsPage />} />
-          
-          
-           
+          <Route path="invite/:token" element={<GroupInvitePage />} />
           <Route path="expenses" element={<ExpensePage />} />
           <Route path="expenses/:id" element={<ViewExpense />} />
           <Route path="settlements" element={<SettlementPage />} />

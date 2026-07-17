@@ -204,19 +204,19 @@ const GroupPage = () => {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 mb-8">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8">
         <div>
-          <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-blue-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
             Groups
           </h1>
-          <p className="text-slate-600">Make Groups, Manage and Grow</p>
+          <p className="text-xs text-muted-foreground">Make Groups, Manage and Grow</p>
         </div>
         <Button
           size="sm"
           onClick={HandleGroupForm}
-          className="bg-gradient-to-r from-blue-600 to-teal-600 text-white"
+          className="bg-foreground text-background hover:bg-foreground/90 font-bold rounded-full cursor-pointer px-5 py-2 text-xs"
         >
           Add Group
         </Button>
@@ -225,16 +225,16 @@ const GroupPage = () => {
       {/* Loading State */}
       {loading && (
         <div className="flex justify-center items-center h-48">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-          <p className="ml-3 text-slate-600 font-medium">Loading groups...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
+          <p className="ml-3 text-muted-foreground text-xs font-medium">Loading groups...</p>
         </div>
       )}
 
       {/* Error State */}
       {error && !loading && (
-        <div className="text-center text-red-500 py-8">
-          <p className="font-medium">Failed to load groups 😢</p>
-          <Button onClick={fetchData} className="mt-3 bg-blue-600 text-white">
+        <div className="text-center text-destructive py-8">
+          <p className="font-medium text-xs">Failed to load groups 😢</p>
+          <Button onClick={fetchData} className="mt-3 bg-foreground text-background hover:bg-foreground/90 font-bold text-xs rounded-full px-4 cursor-pointer">
             Retry
           </Button>
         </div>

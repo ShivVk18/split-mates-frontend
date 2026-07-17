@@ -96,10 +96,10 @@ const CreateSettlementForm = ({ onClose, onSubmit, groups, balanceData, loading 
     />
 
     {/* Modal */}
-    <div className="relative z-[9999] w-full max-w-lg bg-white rounded-xl shadow-2xl">
+    <div className="relative z-[9999] w-full max-w-lg bg-card text-foreground rounded-xl shadow-2xl">
 
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-slate-200 sticky top-0 bg-white rounded-t-xl z-10">
+      <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-card rounded-t-xl z-10">
         <div>
           <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
             Create Settlement
@@ -111,9 +111,9 @@ const CreateSettlementForm = ({ onClose, onSubmit, groups, balanceData, loading 
 
         <button
           onClick={onClose}
-          className="rounded-full p-2 hover:bg-slate-100 transition-colors"
+          className="rounded-full p-2 hover:bg-muted transition-colors"
         >
-          <X className="h-5 w-5 text-slate-500" />
+          <X className="h-5 w-5 text-muted-foreground" />
         </button>
       </div>
 
@@ -130,7 +130,7 @@ const CreateSettlementForm = ({ onClose, onSubmit, groups, balanceData, loading 
             value={formData.groupId}
             onChange={(e) => handleGroupChange(e.target.value)}
             disabled={loading}
-            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
+            className="w-full px-4 py-3 border border-input bg-card text-foreground rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
           >
             <option value="">Select Group</option>
             {groups.map((group) => (
@@ -152,10 +152,10 @@ const CreateSettlementForm = ({ onClose, onSubmit, groups, balanceData, loading 
             onChange={(e) =>
               handleChange("paidToId", e.target.value)
             }
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-600 outline-none ${
+            className={`w-full px-4 py-3 border bg-card text-foreground rounded-lg focus:ring-2 focus:ring-blue-600 outline-none ${
               errors.paidToId
                 ? "border-red-500"
-                : "border-slate-300"
+                : "border-input"
             }`}
           >
             <option value="">Select Person</option>
@@ -195,10 +195,10 @@ const CreateSettlementForm = ({ onClose, onSubmit, groups, balanceData, loading 
                 handleChange("amount", e.target.value)
               }
               placeholder="0.00"
-              className={`w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-600 outline-none ${
+              className={`w-full pl-8 pr-4 py-3 border bg-card text-foreground rounded-lg focus:ring-2 focus:ring-blue-600 outline-none ${
                 errors.amount
                   ? "border-red-500"
-                  : "border-slate-300"
+                  : "border-input"
               }`}
             />
           </div>
@@ -236,10 +236,10 @@ const CreateSettlementForm = ({ onClose, onSubmit, groups, balanceData, loading 
             onChange={(e) =>
               handleChange("method", e.target.value)
             }
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-600 outline-none ${
+            className={`w-full px-4 py-3 border bg-card text-foreground rounded-lg focus:ring-2 focus:ring-blue-600 outline-none ${
               errors.method
                 ? "border-red-500"
-                : "border-slate-300"
+                : "border-input"
             }`}
           >
             {paymentMethods.map((method) => (
@@ -272,7 +272,7 @@ const CreateSettlementForm = ({ onClose, onSubmit, groups, balanceData, loading 
               handleChange("note", e.target.value)
             }
             placeholder="Add a note..."
-            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none resize-none"
+            className="w-full px-4 py-3 border border-input bg-card text-foreground rounded-lg focus:ring-2 focus:ring-blue-600 outline-none resize-none"
           />
         </div>
 

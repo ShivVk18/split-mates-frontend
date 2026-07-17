@@ -76,13 +76,13 @@ export default function FriendsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 mb-8"
+        className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8"
       >
         <div>
-          <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-blue-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
             Friends
           </h1>
-          <p className="text-slate-600">Find friends, manage requests, and grow your circle.</p>
+          <p className="text-xs text-muted-foreground">Find friends, manage requests, and grow your circle.</p>
         </div>
         <div className="flex gap-3">
         
@@ -97,26 +97,17 @@ export default function FriendsPage() {
         className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
       >
         {[
-          { label: "All Friends", icon: Users, color: "blue", href: "#friends-section" },
-          { label: "Pending Requests", icon: Inbox, color: "emerald", href: "#pending-section" },
-          { label: "Suggestions", icon: Sparkles, color: "purple", href: "#suggestions-section" },
+          { label: "All Friends", icon: Users, href: "#friends-section", textColor: "text-foreground", bgColor: "bg-muted" },
+          { label: "Pending Requests", icon: Inbox, href: "#pending-section", textColor: "text-foreground", bgColor: "bg-muted" },
+          { label: "Suggestions", icon: UserPlus, href: "#suggestions-section", textColor: "text-orange-600 dark:text-orange-400", bgColor: "bg-orange-500/10" },
         ].map((item, idx) => (
           <motion.div key={idx} variants={fadeInUp}>
-            <Card className="bg-white backdrop-blur-sm border-slate-200 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className={cn(
-                      `w-12 h-12 rounded-2xl bg-gradient-to-r from-${item.color}-100 to-${item.color}-200 flex items-center justify-center group-hover:scale-110 transition-transform duration-200`,
-                    )}
-                  >
-                    <item.icon className={cn(`h-6 w-6 text-${item.color}-600`)} />
-                  </div>
-                </div>
+            <Card className="bg-card border-border hover:shadow-xs transition-all duration-200">
+              <CardContent className="p-5 flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-slate-600">Quick Access</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Quick Access</p>
                   <button
-                    className={cn(`text-2xl font-bold text-${item.color}-600 hover:underline`)}
+                    className={cn(`text-xl font-bold ${item.textColor} hover:underline cursor-pointer block text-left`)}
                     onClick={() => {
                       const el = document.querySelector(item.href)
                       ;(el)?.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -124,6 +115,9 @@ export default function FriendsPage() {
                   >
                     {item.label}
                   </button>
+                </div>
+                <div className={cn(`w-10 h-10 rounded-xl ${item.bgColor} flex items-center justify-center shrink-0`)}>
+                  <item.icon className="h-4.5 w-4.5 text-foreground" />
                 </div>
               </CardContent>
             </Card>
@@ -136,7 +130,7 @@ export default function FriendsPage() {
         <Card className="bg-white backdrop-blur-sm border-slate-200 shadow-lg mb-8">
           <CardHeader className="pb-3">
             <CardTitle className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-              <Mail className="h-5 w-5 text-blue-600" />
+              <Mail className="h-5 w-5 text-foreground" />
               Search by Email
             </CardTitle>
             <CardDescription>Find a specific user by their email address.</CardDescription>

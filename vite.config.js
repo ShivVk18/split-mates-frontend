@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename)
 export default defineConfig({
   server:{
     proxy:{
-      '/api/v1' : {target: 'http://localhost:4000', changeOrigin: true}
+      '/api/v1' : {target: 'http://localhost:8000', changeOrigin: true}
     }
   },
   plugins: [react(), tailwindcss(

@@ -13,7 +13,8 @@ import {
   Plus,
   Sparkles,
   Filter,
-  Download
+  Download,
+  TrendingUp
 } from "lucide-react";
 import useFetch from "@/hooks/useFetch";
 import { useAuthStore } from "@/stores/userStore";
@@ -143,26 +144,26 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 mb-10"
+        className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8"
       >
         <div>
-          <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-blue-600 bg-clip-text text-transparent mb-3">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
             Welcome back, {user?.name?.split(' ')[0] || 'User'}
           </h1>
+          <p className="text-xs text-muted-foreground">Manage your group shares and track balances</p>
         </div>
 
         <div className="flex gap-3">
-  
           <Button 
-            className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg hover:shadow-xl px-6 py-2.5 rounded-2xl font-medium transition-all duration-200"
-            onClick={() => console.log("Button clicked")}
+            className="bg-foreground text-background hover:bg-foreground/90 font-bold px-6 py-2.5 rounded-full transition-all duration-150 active:scale-95 cursor-pointer flex items-center gap-2 text-xs"
+            onClick={() => window.location.href = '/expenses'}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-3.5 w-3.5" />
             Add Expense
           </Button>
         </div>
@@ -173,25 +174,23 @@ export default function Dashboard() {
         variants={staggerContainer}
         initial="initial"
         animate="animate"
-        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10"
+        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8"
       >
         {[
-          { label: "Total Expenses", value: `$${totalExpense.toFixed(2)}`, icon: DollarSign, color: "blue" },
-          { label: "You're Owed", value: `$${balanceData?.totalOwed || 0}`, icon: ArrowDownLeft, color: "emerald" },
-          { label: "You Owe", value: `$${balanceData?.totalOwing || 0}`, icon: ArrowUpRight, color: "red" },
-          { label: "Active Groups", value: `${groupData?.totalGroups || 0}`, icon: Users, color: "purple" }
+          { label: "Total Expenses", value: `₹${totalExpense.toLocaleString()}`, icon: DollarSign, textColor: "text-orange-600 dark:text-orange-400", bgColor: "bg-orange-500/10" },
+          { label: "You're Owed", value: `₹${(balanceData?.totalOwed || 0).toLocaleString()}`, icon: ArrowDownLeft, textColor: "text-foreground", bgColor: "bg-muted" },
+          { label: "You Owe", value: `₹${(balanceData?.totalOwing || 0).toLocaleString()}`, icon: ArrowUpRight, textColor: "text-foreground", bgColor: "bg-muted" },
+          { label: "Active Groups", value: `${groupData?.totalGroups || 0}`, icon: Users, textColor: "text-foreground", bgColor: "bg-muted" }
         ].map((stat, index) => (
           <motion.div key={index} variants={fadeInUp}>
-            <Card className="bg-white backdrop-blur-sm border-slate-200 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-r from-${stat.color}-100 to-${stat.color}-200 flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
-                    <stat.icon className={`h-6 w-6 text-${stat.color}-600`} />
-                  </div>
-                </div>
+            <Card className="bg-card border-border hover:shadow-xs transition-all duration-200">
+              <CardContent className="p-5 flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-slate-600">{stat.label}</p>
-                  <p className={`text-3xl font-bold text-${stat.color}-600`}>{stat.value}</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{stat.label}</p>
+                  <p className={`text-2xl font-bold ${stat.textColor}`}>{stat.value}</p>
+                </div>
+                <div className={`w-10 h-10 rounded-xl ${stat.bgColor} flex items-center justify-center shrink-0`}>
+                  <stat.icon className="h-4.5 w-4.5 text-foreground" />
                 </div>
               </CardContent>
             </Card>
@@ -259,7 +258,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-slate-900">${expense.amount.toFixed(2)}</p>
+                        <p className="text-lg font-bold text-slate-900">₹{expense.amount.toFixed(2)}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -279,7 +278,7 @@ export default function Dashboard() {
             <CardHeader className="pb-4">
               <div>
                 <CardTitle className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-                  <Users className="h-5 w-5 text-blue-600" />
+                  <Users className="h-5 w-5 text-foreground" />
                   Balance Summary
                 </CardTitle>
                 <CardDescription className="mt-1">Who owes what</CardDescription>
@@ -305,7 +304,7 @@ export default function Dashboard() {
                       <div className="flex items-center gap-4 flex-1">
                         <Avatar className="w-11 h-11 border-2 border-white shadow-md">
                           <AvatarFallback
-                            className={`bg-gradient-to-r from-${balance.color}-600 to-${balance.color}-700 text-white font-semibold text-sm`}
+                            className={`bg-foreground text-background font-semibold text-sm`}
                           >
                             {balance.avatar}
                           </AvatarFallback>
@@ -324,7 +323,7 @@ export default function Dashboard() {
                               balance.type === "owed" ? "text-emerald-600" : "text-red-600"
                             }`}
                           >
-                            ${balance.amount.toFixed(2)}
+                            ₹{balance.amount.toFixed(2)}
                           </p>
                         </div>
                         <Button
@@ -348,42 +347,42 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      {/* AI Insights */}
+      {/* Insights */}
       {balanceSummary.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-          <Card className="bg-gradient-to-r from-blue-50 to-teal-50 backdrop-blur-sm border-blue-200 shadow-lg">
+          <Card className="bg-card border-border shadow-xs">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-blue-600" />
+              <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 Insights
               </CardTitle>
               <CardDescription>Quick summary of your expenses</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="p-6 bg-white backdrop-blur-sm rounded-2xl border border-teal-200 shadow-md">
+                <div className="p-6 bg-muted rounded-2xl border border-border">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-teal-100 to-teal-200 flex items-center justify-center">
-                      <Sparkles className="h-5 w-5 text-teal-600" />
+                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                      <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                     </div>
-                    <h4 className="font-semibold text-teal-800">Activity Summary</h4>
+                    <h4 className="font-semibold text-foreground">Activity Summary</h4>
                   </div>
-                  <p className="text-teal-700 text-sm leading-relaxed">
+                  <p className="text-muted-foreground text-sm leading-relaxed">
                     You have {balanceSummary.length} active {balanceSummary.length === 1 ? 'balance' : 'balances'} with friends. 
                     Keep tracking your expenses to stay organized!
                   </p>
                 </div>
                 
                 {recentExpenses.length > 0 && (
-                  <div className="p-6 bg-white backdrop-blur-sm rounded-2xl border border-blue-200 shadow-md">
+                  <div className="p-6 bg-muted rounded-2xl border border-border">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-100 to-blue-200 flex items-center justify-center">
-                        <Receipt className="h-5 w-5 text-blue-600" />
+                      <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center">
+                        <Receipt className="h-5 w-5 text-foreground" />
                       </div>
-                      <h4 className="font-semibold text-blue-800">Recent Activity</h4>
+                      <h4 className="font-semibold text-foreground">Recent Activity</h4>
                     </div>
-                    <p className="text-blue-700 text-sm leading-relaxed">
-                      Latest expense: {recentExpenses[0].title} for ${recentExpenses[0].amount.toFixed(2)} 
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Latest expense: {recentExpenses[0].title} for ₹{recentExpenses[0].amount.toFixed(2)} 
                       {recentExpenses[0].group !== "Personal" && ` in ${recentExpenses[0].group}`}
                     </p>
                   </div>

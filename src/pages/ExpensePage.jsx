@@ -68,20 +68,20 @@ const ExpensePage = () => {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 mb-8">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8">
         <div>
-          <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-blue-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
             Expenses
           </h1>
-          <p className="text-slate-600">Track, manage, and control your expenses easily</p>
+          <p className="text-xs text-muted-foreground">Track, manage, and control your expenses easily</p>
           
           {/* Total Amount Display */}
           {totalExpenseAmount > 0 && (
-            <div className="mt-3 inline-block bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg px-4 py-2">
-              <span className="text-sm text-slate-600">Total Expenses: </span>
-              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
+            <div className="mt-3 inline-flex bg-orange-500/10 border border-orange-500/20 rounded-full px-3 py-1 items-center gap-1.5">
+              <span className="text-[10px] text-muted-foreground uppercase font-semibold">Total Expenses: </span>
+              <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
                 ₹{totalExpenseAmount.toLocaleString('en-IN')}
               </span>
             </div>
@@ -90,7 +90,7 @@ const ExpensePage = () => {
         <Button
           size="sm"
           onClick={handleExpenseForm}
-          className="bg-gradient-to-r from-blue-600 to-teal-600 text-white"
+          className="bg-foreground text-background hover:bg-foreground/90 font-bold rounded-full cursor-pointer px-5 py-2 text-xs"
         >
           Add Expense
         </Button>
@@ -99,16 +99,16 @@ const ExpensePage = () => {
       {/* Loading State */}
       {loading && (
         <div className="flex justify-center items-center h-48">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-          <p className="ml-3 text-slate-600 font-medium">Loading Expenses...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
+          <p className="ml-3 text-muted-foreground text-xs font-medium">Loading Expenses...</p>
         </div>
       )}
 
       {/* Error State */}
       {error && !loading && (
-        <div className="text-center text-red-500 py-8">
-          <p className="font-medium">Failed to load expenses 😢</p>
-          <Button onClick={fetchData} className="mt-3 bg-blue-600 text-white">
+        <div className="text-center text-destructive py-8">
+          <p className="font-medium text-xs">Failed to load expenses 😢</p>
+          <Button onClick={fetchData} className="mt-3 bg-foreground text-background hover:bg-foreground/90 font-bold text-xs rounded-full px-4 cursor-pointer">
             Retry
           </Button>
         </div>
@@ -122,7 +122,7 @@ const ExpensePage = () => {
           </div>
 
           {/* Pagination */}
-          {expenseData?.data?.pagination?.pages > 1 && (
+          {expenseData?.pagination?.pages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-8">
               <Button
                 variant="outline"
@@ -133,12 +133,12 @@ const ExpensePage = () => {
                 Previous
               </Button>
               <span className="text-sm text-slate-600">
-                Page {currentPage} of {expenseData.data.pagination.pages}
+                Page {currentPage} of {expenseData.pagination.pages}
               </span>
               <Button
                 variant="outline"
                 size="sm"
-                disabled={currentPage === expenseData.data.pagination.pages}
+                disabled={currentPage === expenseData.pagination.pages}
                 onClick={() => handlePageChange(currentPage + 1)}
               >
                 Next

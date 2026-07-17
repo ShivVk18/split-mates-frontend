@@ -26,7 +26,7 @@ const BalanceSummaryCard = ({ balanceData, onCreateSettlement }) => {
           ₹{totalOwing.toLocaleString("en-IN")}
         </p>
         <p className="text-sm text-slate-600 mt-2">
-          {relationships?.filter(r => r.youOwe > 0).length || 0} people
+          {relationships?.filter(r => r.iOwe > 0).length || 0} people
         </p>
       </div>
 
@@ -44,7 +44,7 @@ const BalanceSummaryCard = ({ balanceData, onCreateSettlement }) => {
           ₹{totalOwed.toLocaleString("en-IN")}
         </p>
         <p className="text-sm text-slate-600 mt-2">
-          {relationships?.filter(r => r.owesYou > 0).length || 0} people
+          {relationships?.filter(r => r.owedToMe > 0).length || 0} people
         </p>
       </div>
 
@@ -126,23 +126,23 @@ const BalanceSummaryCard = ({ balanceData, onCreateSettlement }) => {
                 </div>
 
                 <div className="space-y-1">
-                  {relationship.youOwe > 0 && (
+                  {relationship.iOwe > 0 && (
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-600">You owe:</span>
                       <span className="text-sm font-semibold text-red-600">
-                        ₹{relationship.youOwe.toLocaleString("en-IN")}
+                        ₹{relationship.iOwe.toLocaleString("en-IN")}
                       </span>
                     </div>
                   )}
-                  {relationship.owesYou > 0 && (
+                  {relationship.owedToMe > 0 && (
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-600">Owes you:</span>
                       <span className="text-sm font-semibold text-green-600">
-                        ₹{relationship.owesYou.toLocaleString("en-IN")}
+                        ₹{relationship.owedToMe.toLocaleString("en-IN")}
                       </span>
                     </div>
                   )}
-                  {relationship.youOwe === 0 && relationship.owesYou === 0 && (
+                  {relationship.iOwe === 0 && relationship.owedToMe === 0 && (
                     <div className="text-sm text-slate-500 text-center py-1">
                       All settled up ✓
                     </div>
