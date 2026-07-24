@@ -8,20 +8,20 @@ export default function FaqAccordion() {
 
   const faqs = [
     {
-      question: "How does the smart bill split auditor work?",
-      answer: "The auditor compiles all transaction records and splits in your groups from the last 30 days. It processes this data using our built-in optimization engine, analyzes net patterns, isolates excessive spends, and formats recommendations (savings, debt-simplification) in a clean document."
+      question: "How does the AI auditor work?",
+      answer: "It audits all group transactions from the last 30 days. Our AI analyzes spending patterns, tells you where the cash is going, and serves savings tips on a silver platter."
     },
     {
-      question: "Is my personal data encrypted?",
-      answer: "Yes, fully. All group names, transactions, and split records are encrypted end-to-end. Your account access is protected using industry-standard secure token checks."
+      question: "Is my data safe or is it sketchy?",
+      answer: "Completely safe. All logs, transactions, and splits are encrypted. No sketchy trackers, your privacy is protected."
     },
     {
-      question: "Can I generate PDF reports for my group?",
-      answer: "Yes. From the group reports tab, you can click 'Download PDF' to save a clean, high-quality, print-ready document version."
+      question: "Can I download PDF reports?",
+      answer: "Yes. Download a clean, aesthetic report to share with your group in one tap."
     },
     {
-      question: "Is there a limit to how many friends I can add?",
-      answer: "No. You can send invitations to any friend, and they will receive alerts on their dashboard instantly."
+      question: "Is there a friend limit?",
+      answer: "No limit. Invite your whole squad, they will get dashboard alerts instantly."
     }
   ];
 
@@ -31,7 +31,7 @@ export default function FaqAccordion() {
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.01] dark:opacity-[0.02] bg-[linear-gradient(135deg,var(--foreground)_25%,transparent_25%,transparent_50%,var(--foreground)_50%,var(--foreground)_75%,transparent_75%,transparent_100%)] bg-[size:40px_40px]" />
 
       <div className="text-center mb-16 relative z-10">
-        <Badge className="mb-4 bg-muted border border-border text-foreground px-3 py-1 rounded-full text-xs">Help</Badge>
+        <Badge className="mb-4 bg-muted border border-border text-foreground px-3 py-1 rounded-full text-xs">Get Educated</Badge>
         <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">Frequently Asked Questions</h2>
       </div>
 
@@ -39,8 +39,12 @@ export default function FaqAccordion() {
         {faqs.map((faq, idx) => {
           const isOpen = activeIdx === idx;
           return (
-            <div 
+            <motion.div 
               key={idx} 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: idx * 0.08 }}
               className="border border-border rounded-xl bg-card/20 overflow-hidden transition-colors duration-200"
             >
               <button
@@ -68,7 +72,7 @@ export default function FaqAccordion() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </motion.div>
           );
         })}
       </div>

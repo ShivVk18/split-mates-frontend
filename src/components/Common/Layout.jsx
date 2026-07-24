@@ -71,18 +71,6 @@ export default function Layout() {
     }
   };
 
-  const handleTriggerTestNotification = async () => {
-    try {
-      await api.post('/notifications/test-trigger');
-      toast.success("Test reminder triggered!");
-      await fetchNotificationsList();
-      const countRes = await api.get('/notifications/unread-count');
-      setUnreadCount(countRes.data?.data?.count || 0);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to trigger test reminder");
-    }
-  };
 
   useEffect(() => {
     const fetchUnread = async () => {
@@ -155,14 +143,12 @@ export default function Layout() {
         <div className="h-16 flex items-center px-4 border-b border-border">
           {!isSidebarCollapsed ? (
             <div className="flex items-center gap-2.5 cursor-pointer w-full" onClick={() => navigate("/dashboard")}>
-              <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center shrink-0">
-                <span className="text-background font-bold text-xs">SM</span>
-              </div>
+              <img src="/logo.svg" alt="SplitMates Logo" className="w-8 h-8 shrink-0 object-contain" />
               <span className="font-bold text-sm text-foreground truncate">SplitMates</span>
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center shrink-0 mx-auto">
-              <span className="text-background font-bold text-xs">SM</span>
+            <div className="w-8 h-8 shrink-0 mx-auto cursor-pointer" onClick={() => navigate("/dashboard")}>
+              <img src="/logo.svg" alt="SplitMates Logo" className="w-8 h-8 object-contain" />
             </div>
           )}
         </div>
@@ -248,9 +234,7 @@ export default function Layout() {
               <div className="space-y-6">
                 <div className="flex justify-between items-center pb-4 border-b border-border">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
-                      <span className="text-background font-bold text-xs">SM</span>
-                    </div>
+                    <img src="/logo.svg" alt="SplitMates Logo" className="w-8 h-8 shrink-0 object-contain" />
                     <span className="font-bold text-base text-foreground">SplitMates</span>
                   </div>
                   <Button
@@ -394,22 +378,11 @@ export default function Layout() {
                       )}
                     </div>
 
-                    <div className="p-2.5 bg-muted/40 border-t border-border flex justify-center">
-                      <button
-                        onClick={handleTriggerTestNotification}
-                        className="w-full text-center py-1.5 bg-foreground text-background hover:bg-foreground/90 font-bold rounded-lg text-[10px] cursor-pointer transition-all duration-100"
-                      >
-                        Simulate Test Payment Reminder
-                      </button>
-                    </div>
+
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-            <Badge className="bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wide flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" />
-              Pro Plan
-            </Badge>
           </div>
         </div>
       </header>

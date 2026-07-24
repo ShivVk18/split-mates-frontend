@@ -9,6 +9,7 @@ import ViewGroupModal from "@/components/Group/ViewGroup";
 import EditGroupModal from "@/components/Group/EditGroupModal";
 import groupService from "@/services/groupService";
 import { toast } from "sonner";
+import useSEO from "@/hooks/useSEO";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +22,11 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const GroupPage = () => {
+  useSEO({
+    title: "Groups",
+    description: "Manage your expense sharing groups on SplitMates. Add members, view group balances, and settle bills easily."
+  });
+
   const [groupData, loading, error, fetchData] = useFetch("/groups/");
   const { setGroups, setPagination } = useGroupStore();
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Filter, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowRight, Filter, TrendingUp, TrendingDown, Sparkles } from "lucide-react";
 import useFetch from "@/hooks/useFetch";
 import useSettlementStore from "@/stores/settlementStore";
 import { SettlementCards } from "@/components/Settlement/SettlementCard";
@@ -16,8 +16,14 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import useSEO from "@/hooks/useSEO";
 
 const SettlementPage = () => {
+  useSEO({
+    title: "Settlements",
+    description: "View and manage payment settlements on SplitMates. Record settlements between group members and calculate optimal pathways using AI."
+  });
+
   // Fetch settlement history
   const [settlementData, loading, error, fetchData] = useFetch("/settlements/history");
   const { setSettlements, setPagination } = useSettlementStore();
@@ -161,8 +167,8 @@ const SettlementPage = () => {
             onClick={() => setShowOptimalModal(true)}
             className="border-border text-foreground hover:bg-accent rounded-full cursor-pointer px-4 text-xs font-semibold"
           >
-            <ArrowRight className="w-3.5 h-3.5 mr-2" />
-            Optimal Settlement
+            <Sparkles className="w-3.5 h-3.5 mr-2 text-orange-500 animate-pulse" />
+            AI Optimal Settlement
           </Button>
           <Button
             size="sm"
@@ -199,7 +205,7 @@ const SettlementPage = () => {
         </div>
       )}
 
-      <Tabs defaultValue="all" onValueChange={handleTabChange} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-3 h-11 bg-muted p-1 rounded-xl">
           <TabsTrigger value="all" className="h-full py-0 cursor-pointer rounded-lg">All</TabsTrigger>
           <TabsTrigger value="pending" className="h-full py-0 cursor-pointer rounded-lg">Pending</TabsTrigger>

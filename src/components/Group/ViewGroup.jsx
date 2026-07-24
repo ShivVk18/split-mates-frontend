@@ -111,7 +111,7 @@ const ViewGroupModal = ({
         }
       } catch (error) {
         if (!cancelled) {
-          const errorMsg = error.message || "Failed to search user";
+          const errorMsg = error.response?.data?.message || error.message || "Failed to search user";
           setEmailError(errorMsg);
           setEmailResult(null);
         }
@@ -144,10 +144,8 @@ const ViewGroupModal = ({
     try {
       if (emailResult?.user) {
         await onAddMember(group.id, emailQuery.trim());
-        toast.success(`${emailResult.user.name} added to the group`);
       } else {
         await onSendInvite(group.id, emailQuery.trim());
-        toast.success("Invitation sent successfully");
       }
       
       setEmailQuery("");
@@ -195,16 +193,16 @@ const ViewGroupModal = ({
 
   const getCategoryColor = (category) => {
     const colors = {
-      GENERAL: "bg-slate-100 text-slate-800",
-      TRIP: "bg-blue-100 text-blue-800",
-      HOME: "bg-green-100 text-green-800",
-      COUPLE: "bg-pink-100 text-pink-800",
-      FRIENDS: "bg-purple-100 text-purple-800",
-      WORK: "bg-orange-100 text-orange-800",
-      PROJECT: "bg-cyan-100 text-cyan-800",
-      EVENT: "bg-yellow-100 text-yellow-800",
-      TRAVEL: "bg-indigo-100 text-indigo-800",
-      FOOD: "bg-red-100 text-red-800",
+      GENERAL: "bg-muted text-muted-foreground border border-border/50",
+      TRIP: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20",
+      HOME: "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20",
+      COUPLE: "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20",
+      FRIENDS: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20",
+      WORK: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20",
+      PROJECT: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20",
+      EVENT: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20",
+      TRAVEL: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20",
+      FOOD: "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20",
     };
     return colors[category] || colors.GENERAL;
   };
@@ -219,12 +217,12 @@ const ViewGroupModal = ({
 
       {/* Modal */}
       <div 
-        className="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col z-[10001]"
+        className="relative w-full max-w-3xl bg-card rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col z-[10001] border border-border/80"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-white">
+        <div className="flex items-center justify-between p-6 border-b border-border bg-card">
           <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold text-foreground">
               {group.name}
             </h2>
             <div className="flex items-center gap-2 mt-2">
@@ -241,63 +239,63 @@ const ViewGroupModal = ({
               </Badge>
             </div>
           </div>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-slate-100 transition-colors group">
-            <X className="h-5 w-5 text-slate-500 group-hover:text-slate-700" />
+          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted transition-colors group">
+            <X className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-200 bg-white px-6">
+        <div className="flex border-b border-border bg-card px-6">
           <button
             onClick={() => setActiveTab("details")}
             className={`px-4 py-3 font-medium transition-colors relative ${
               activeTab === "details"
-                ? "text-blue-600"
-                : "text-slate-600 hover:text-slate-900"
+                ? "text-orange-500 font-bold"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Details
             {activeTab === "details" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500" />
             )}
           </button>
           <button
             onClick={() => setActiveTab("members")}
             className={`px-4 py-3 font-medium transition-colors relative ${
               activeTab === "members"
-                ? "text-blue-600"
-                : "text-slate-600 hover:text-slate-900"
+                ? "text-orange-500 font-bold"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Members ({group.members?.length || 0})
             {activeTab === "members" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500" />
             )}
           </button>
           <button
             onClick={() => setActiveTab("manage")}
             className={`px-4 py-3 font-medium transition-colors relative ${
               activeTab === "manage"
-                ? "text-blue-600"
-                : "text-slate-600 hover:text-slate-900"
+                ? "text-orange-500 font-bold"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {isAdmin ? "Manage" : "Add Member"}
             {activeTab === "manage" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500" />
             )}
           </button>
           <button
             onClick={() => setActiveTab("expenses")}
             className={`px-4 py-3 font-medium transition-colors relative ${
               activeTab === "expenses"
-                ? "text-blue-600"
-                : "text-slate-600 hover:text-slate-900"
+                ? "text-orange-500 font-bold"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Expenses
             {activeTab === "expenses" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500" />
             )}
           </button>
         </div>
@@ -307,28 +305,28 @@ const ViewGroupModal = ({
           {/* Details Tab */}
           {activeTab === "details" && (
             <>
-              <div className="bg-gradient-to-r from-blue-50 to-teal-50 rounded-lg p-4 border border-blue-200">
-                <h3 className="text-sm font-semibold text-blue-900 mb-1 uppercase tracking-wide">Description</h3>
-                <p className="text-slate-700">{group.description || "No description provided"}</p>
+              <div className="bg-muted/40 border border-border/80 rounded-xl p-4">
+                <h3 className="text-sm font-semibold text-foreground mb-1 uppercase tracking-wide">Description</h3>
+                <p className="text-muted-foreground">{group.description || "No description provided"}</p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-orange-500" />
                   Group Admin
                 </h3>
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200 hover:border-blue-300 transition-colors">
-                  <Avatar className="h-12 w-12 border-2 border-blue-200">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/10 border border-border/60 hover:border-orange-500/30 transition-colors">
+                  <Avatar className="h-12 w-12 border border-border">
                     <AvatarImage src={group.createdBy?.avatar} />
-                    <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold">
+                    <AvatarFallback className="bg-orange-500/10 text-orange-500 font-semibold">
                       {group.createdBy?.name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <p className="font-semibold text-slate-900">{group.createdBy?.name}</p>
-                    <p className="text-sm text-slate-600">{group.createdBy?.email}</p>
+                    <p className="font-semibold text-foreground">{group.createdBy?.name}</p>
+                    <p className="text-sm text-muted-foreground">{group.createdBy?.email}</p>
                   </div>
-                  <Badge className="bg-blue-100 text-blue-700 border-blue-200">
+                  <Badge className="bg-orange-500/10 text-orange-500 border border-orange-500/20">
                     <Crown className="h-3 w-3 mr-1" />
                     Admin
                   </Badge>
@@ -363,12 +361,12 @@ const ViewGroupModal = ({
             <div className="space-y-3">
               {group.members?.length > 0 ? (
                 group.members.map((member) => (
-                  <div key={member.id} className="flex items-center justify-between p-4 rounded-lg bg-slate-50 border border-slate-200 hover:border-blue-300 transition-all group">
+                  <div key={member.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/20 border border-border/40 hover:border-orange-500/30 transition-all group">
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <Avatar className="h-11 w-11">
                           <AvatarImage src={member.avatar} />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-100 to-teal-100 text-blue-700 font-semibold">
+                          <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-500 text-white font-semibold">
                             {member.name?.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
@@ -378,9 +376,9 @@ const ViewGroupModal = ({
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-slate-900">{member.name}</p>
+                          <p className="font-semibold text-foreground">{member.name}</p>
                           {member.id === group.createdBy?.id && (
-                            <Badge variant="secondary" className="text-xs">
+                            <Badge variant="secondary" className="text-xs bg-orange-500/10 text-orange-500 border border-orange-500/20">
                               <Crown className="h-3 w-3 mr-1" />
                               Admin
                             </Badge>
@@ -391,9 +389,9 @@ const ViewGroupModal = ({
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-slate-600">{member.email}</p>
+                        <p className="text-sm text-muted-foreground">{member.email}</p>
                         {member.joinedAt && (
-                          <p className="text-xs text-slate-500 mt-0.5">
+                          <p className="text-xs text-muted-foreground mt-0.5">
                             Joined {format(new Date(member.joinedAt), "MMM dd, yyyy")}
                           </p>
                         )}
@@ -421,9 +419,9 @@ const ViewGroupModal = ({
                 ))
               ) : (
                 <div className="text-center py-12">
-                  <Users className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500 font-medium">No members yet</p>
-                  <p className="text-sm text-slate-400 mt-1">Start by inviting people to join</p>
+                  <Users className="h-12 w-12 text-muted-foreground/60 mx-auto mb-3" />
+                  <p className="text-muted-foreground font-medium">No members yet</p>
+                  <p className="text-sm text-muted-foreground/80 mt-1">Start by inviting people to join</p>
                 </div>
               )}
             </div>
@@ -432,12 +430,12 @@ const ViewGroupModal = ({
           {/* Manage Tab */}
           {activeTab === "manage" && (
             <>
-              <div className="bg-gradient-to-r from-blue-50 to-teal-50 rounded-lg p-5 border border-blue-200">
-                <h3 className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                  <Mail className="h-5 w-5 text-blue-600" /> 
+              <div className="bg-muted/40 border border-border/80 rounded-2xl p-5">
+                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-orange-500" /> 
                   Add / Invite Member
                 </h3>
-                <p className="text-sm text-slate-600 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   Search for existing users by email or send an invite to new users
                 </p>
                 
@@ -449,19 +447,19 @@ const ViewGroupModal = ({
                         onChange={(e) => setEmailQuery(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder="Enter email address (e.g., user@example.com)"
-                        className="bg-white pr-10"
+                        className="bg-card pr-10"
                         disabled={emailLoading}
                       />
                       {emailLoading && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <div className="h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                          <div className="h-4 w-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                       )}
                     </div>
                     <Button
                       onClick={handleAddOrInvite}
                       disabled={emailLoading || emailQuery.trim().length < 3 || !!emailError}
-                      className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
+                      className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold shadow-md active:scale-95 transition-all duration-200 cursor-pointer"
                     >
                       <UserPlus className="h-4 w-4 mr-2" />
                       {emailResult?.user ? "Add Member" : "Send Invite"}
@@ -469,9 +467,9 @@ const ViewGroupModal = ({
                   </div>
 
                   {emailLoading && debouncedEmail && (
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200">
-                      <div className="h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                      <p className="text-sm text-blue-700">Searching for user...</p>
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400">
+                      <div className="h-4 w-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-sm">Searching for user...</p>
                     </div>
                   )}
 
@@ -565,16 +563,16 @@ const ViewGroupModal = ({
             <div className="space-y-3">
               {group.recentExpenses && group.recentExpenses.length > 0 ? (
                 group.recentExpenses.map((expense) => (
-                  <div key={expense.id} className="p-4 rounded-lg bg-slate-50 border border-slate-200 hover:border-blue-300 transition-all">
+                  <div key={expense.id} className="p-4 rounded-xl bg-muted/20 border border-border/40 hover:border-orange-500/30 transition-all">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <p className="font-semibold text-slate-900">{expense.description}</p>
-                        <p className="text-sm text-slate-600">
+                        <p className="font-semibold text-foreground">{expense.description}</p>
+                        <p className="text-sm text-muted-foreground">
                           Paid by <span className="font-medium">{expense.paidBy?.name}</span>
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-lg text-blue-600">
+                        <p className="font-bold text-lg text-orange-500">
                           {group.currency} {expense.amount}
                         </p>
                         <Badge variant="outline" className="text-xs mt-1">
@@ -583,13 +581,13 @@ const ViewGroupModal = ({
                       </div>
                     </div>
                     {expense.date && (
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         {format(new Date(expense.date), "MMM dd, yyyy 'at' hh:mm a")}
                       </p>
                     )}
                     {expense.splits && expense.splits.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-slate-200">
-                        <p className="text-xs text-slate-600 uppercase tracking-wide mb-2">Split Between:</p>
+                      <div className="mt-3 pt-3 border-t border-border/60">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Split Between:</p>
                         <div className="flex flex-wrap gap-2">
                           {expense.splits.map((split, idx) => (
                             <Badge key={idx} variant="secondary" className="text-xs">

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -14,13 +15,19 @@ export default function CtaSection({ onSignUp }) {
 
   return (
     <section className="py-24 px-6 max-w-6xl mx-auto z-10 relative">
-      <div className="relative rounded-2xl border border-border bg-card/40 p-8 md:p-16 text-center overflow-hidden shadow-sm backdrop-blur-md">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.96, y: 15 }}
+        whileInView={{ opacity: 1, scale: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="relative rounded-2xl border border-border bg-card/40 p-8 md:p-16 text-center overflow-hidden shadow-sm backdrop-blur-md"
+      >
         <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,var(--accent)_0%,transparent_60%)] opacity-30" />
         
         <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-none">Ready to Split Smarter?</h2>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-none">Ready to Split Smarter? (Get on Our Level)</h2>
           <p className="text-muted-foreground text-xs md:text-sm max-w-md mx-auto">
-            Take control of your group expenses. No complex spreadsheets. Try our Gemini AI coach, track settlements in one tap, and get clean, exportable reports.
+            Take control of group expenses. No spreadsheets, just vibes. Try our AI coach, settle in one tap, and get clean reports.
           </p>
           
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3 max-w-sm mx-auto pt-4">
@@ -36,12 +43,12 @@ export default function CtaSection({ onSignUp }) {
               type="submit"
               className="w-full sm:w-auto bg-foreground text-background hover:bg-foreground/90 font-bold text-xs py-5 px-6 rounded-xl shrink-0 transition-transform duration-150 active:scale-95 cursor-pointer"
             >
-              Get Started Free
+              Get Started Free (No Cap)
             </Button>
           </form>
           <p className="text-[10px] text-muted-foreground/75">Free plan available forever • Up to 3 active groups • No credit card required</p>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

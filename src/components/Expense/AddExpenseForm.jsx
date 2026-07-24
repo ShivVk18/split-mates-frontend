@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { motion } from "framer-motion";
+import { X, Sparkles } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -43,6 +45,101 @@ const AddExpense = ({ onClose, onSubmit, groups = [], loading = false }) => {
 
   const [groupMembers, setGroupMembers] = useState([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
+  const [memberSplits, setMemberSplits] = useState({});
+
+  const handleSplitInputChange = (userId, value) => {
+    setMemberSplits((prev) => ({
+      ...prev,
+      [userId]: value,
+    }));
+  };
+
+  const splitType = form.watch("splitType");
+
+  useEffect(() => {
+    if (!groupMembers || groupMembers.length === 0) return;
+
+    const initialSplits = {};
+    groupMembers.forEach((member) => {
+      if (splitType === "SHARES") {
+        initialSplits[member.id] = "1";
+      } else {
+        initialSplits[member.id] = "";
+      }
+    });
+    setMemberSplits(initialSplits);
+  }, [groupMembers, splitType]);
+
+  const isSplitValid = () => {
+    const amountVal = parseFloat(form.watch("amount") || 0);
+
+    if (splitType === "EQUAL") {
+      return { valid: true, message: "" };
+    }
+
+    if (splitType === "EXACT") {
+      const totalExact = groupMembers.reduce((sum, m) => sum + (parseFloat(memberSplits[m.id]) || 0), 0);
+      const diff = Math.abs(totalExact - amountVal);
+      if (diff > 0.01) {
+        return {
+          valid: false,
+          message: `Total assigned amount: ${form.watch("currency")} ${totalExact.toFixed(2)} (Remaining: ${form.watch("currency")} ${(amountVal - totalExact).toFixed(2)})`,
+        };
+      }
+      return { valid: true, message: `Perfect! Total assigned matches the expense amount.` };
+    }
+
+    if (splitType === "PERCENTAGE") {
+      const totalPct = groupMembers.reduce((sum, m) => sum + (parseFloat(memberSplits[m.id]) || 0), 0);
+      const diff = Math.abs(totalPct - 100);
+      if (diff > 0.01) {
+        return {
+          valid: false,
+          message: `Total percentage assigned: ${totalPct.toFixed(1)}% (Remaining: ${(100 - totalPct).toFixed(1)}%)`,
+        };
+      }
+      return { valid: true, message: `Perfect! Total percentage equals 100%.` };
+    }
+
+    if (splitType === "SHARES") {
+      const totalShares = groupMembers.reduce((sum, m) => sum + (parseFloat(memberSplits[m.id]) || 0), 0);
+      if (totalShares <= 0) {
+        return {
+          valid: false,
+          message: "Please assign at least 1 share to one of the members.",
+        };
+      }
+      return { valid: true, message: `Perfect! Total shares: ${totalShares}` };
+    }
+
+    return { valid: false, message: "Invalid split type" };
+  };
+
+  const getSplitProgress = () => {
+    const sType = form.watch("splitType");
+    const amountVal = parseFloat(form.watch("amount") || 0);
+
+    if (sType === "EQUAL" || !groupMembers || groupMembers.length === 0) {
+      return 100;
+    }
+
+    if (sType === "EXACT") {
+      const totalExact = groupMembers.reduce((sum, m) => sum + (parseFloat(memberSplits[m.id]) || 0), 0);
+      return amountVal > 0 ? (totalExact / amountVal) * 100 : 0;
+    }
+
+    if (sType === "PERCENTAGE") {
+      const totalPct = groupMembers.reduce((sum, m) => sum + (parseFloat(memberSplits[m.id]) || 0), 0);
+      return totalPct;
+    }
+
+    if (sType === "SHARES") {
+      const totalShares = groupMembers.reduce((sum, m) => sum + (parseFloat(memberSplits[m.id]) || 0), 0);
+      return totalShares > 0 ? 100 : 0;
+    }
+
+    return 0;
+  };
 
   const selectedGroupId = form.watch("groupId");
 
@@ -119,17 +216,46 @@ const AddExpense = ({ onClose, onSubmit, groups = [], loading = false }) => {
 
       // Calculate splits based on split type
       let calculatedSplits = [];
+      const sType = data.splitType;
 
-      if (data.splitType === "EQUAL") {
+      if (sType === "EQUAL") {
         const equalShare = amountNum / groupMembers.length;
         calculatedSplits = groupMembers.map((member) => ({
           userId: member.id,
           amount: parseFloat(equalShare.toFixed(2)),
         }));
-        console.log("✂️ Calculated equal splits:", calculatedSplits);
+      } else if (sType === "EXACT") {
+        const validation = isSplitValid();
+        if (!validation.valid) {
+          toast.error(validation.message);
+          return;
+        }
+        calculatedSplits = groupMembers.map((member) => ({
+          userId: member.id,
+          amount: parseFloat(memberSplits[member.id] || 0),
+        }));
+      } else if (sType === "PERCENTAGE") {
+        const validation = isSplitValid();
+        if (!validation.valid) {
+          toast.error(validation.message);
+          return;
+        }
+        calculatedSplits = groupMembers.map((member) => ({
+          userId: member.id,
+          percentage: parseFloat(memberSplits[member.id] || 0),
+        }));
+      } else if (sType === "SHARES") {
+        const validation = isSplitValid();
+        if (!validation.valid) {
+          toast.error(validation.message);
+          return;
+        }
+        calculatedSplits = groupMembers.map((member) => ({
+          userId: member.id,
+          shares: parseFloat(memberSplits[member.id] || 0),
+        }));
       } else {
-        console.log("❌ Unsupported split type:", data.splitType);
-        toast.error("Only EQUAL split is currently supported");
+        toast.error("Invalid split type");
         return;
       }
 
@@ -354,9 +480,8 @@ const AddExpense = ({ onClose, onSubmit, groups = [], loading = false }) => {
                             <SelectItem 
                               key={split.value} 
                               value={split.value}
-                              disabled={split.value !== "EQUAL"}
                             >
-                              {split.label} {split.value !== "EQUAL" && "(Coming soon)"}
+                              {split.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -366,6 +491,111 @@ const AddExpense = ({ onClose, onSubmit, groups = [], loading = false }) => {
                   </FormItem>
                 )}
               />
+
+              {/* Member Splits Allocation */}
+              {selectedGroupId && groupMembers.length > 0 && (
+                <div className="space-y-4 border border-slate-200 dark:border-border/50 rounded-lg p-4 bg-slate-50 dark:bg-muted/10">
+                  <FormLabel className="text-sm font-semibold text-slate-800 dark:text-foreground">
+                    Split Breakdown
+                  </FormLabel>
+                  
+                  <div className="space-y-3">
+                    {groupMembers.map((member) => {
+                      const shareValue = memberSplits[member.id] || "";
+                      let previewLabel = "";
+                      
+                      if (form.watch("splitType") === "EQUAL") {
+                        const amountVal = parseFloat(form.watch("amount") || 0);
+                        const equalShare = amountVal > 0 ? (amountVal / groupMembers.length).toFixed(2) : "0.00";
+                        previewLabel = `${form.watch("currency")} ${equalShare}`;
+                      } else if (form.watch("splitType") === "PERCENTAGE" && form.watch("amount")) {
+                        const pct = parseFloat(shareValue) || 0;
+                        const amt = parseFloat(form.watch("amount") || 0);
+                        previewLabel = `${form.watch("currency")} ${((pct / 100) * amt).toFixed(2)}`;
+                      } else if (form.watch("splitType") === "SHARES" && form.watch("amount")) {
+                        const amt = parseFloat(form.watch("amount") || 0);
+                        const totalShares = groupMembers.reduce((sum, m) => sum + (parseFloat(memberSplits[m.id]) || 0), 0);
+                        const shares = parseFloat(shareValue) || 0;
+                        const shareAmt = totalShares > 0 ? ((shares / totalShares) * amt).toFixed(2) : "0.00";
+                        previewLabel = `${form.watch("currency")} ${shareAmt}`;
+                      }
+
+                      return (
+                        <div key={member.id} className="flex items-center justify-between gap-3 bg-white dark:bg-card p-3 rounded-lg border border-slate-200 dark:border-border/50">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={member.avatar} />
+                              <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold text-xs">
+                                {member.name?.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-medium text-slate-900 dark:text-foreground truncate">{member.name}</p>
+                              {previewLabel && (
+                                <p className="text-[10px] text-slate-500">{previewLabel}</p>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="w-32 shrink-0">
+                            {form.watch("splitType") === "EQUAL" ? (
+                              <div className="text-right text-xs font-bold text-slate-700 dark:text-slate-200">
+                                {previewLabel}
+                              </div>
+                            ) : (
+                              <div className="relative">
+                                <Input
+                                  type="number"
+                                  step="any"
+                                  min="0"
+                                  placeholder={
+                                    form.watch("splitType") === "EXACT" ? "0.00" :
+                                    form.watch("splitType") === "PERCENTAGE" ? "0" :
+                                    "1"
+                                  }
+                                  value={shareValue}
+                                  onChange={(e) => handleSplitInputChange(member.id, e.target.value)}
+                                  className="h-8 text-xs pr-7 text-right"
+                                />
+                                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 font-medium pointer-events-none">
+                                  {form.watch("splitType") === "EXACT" ? form.watch("currency") :
+                                   form.watch("splitType") === "PERCENTAGE" ? "%" :
+                                   "sh"}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Live Validation Banner with Elastic Progress Gauge */}
+                  {form.watch("splitType") !== "EQUAL" && (
+                    <div className={`text-[10px] font-semibold p-2.5 rounded-md border space-y-2 ${
+                      isSplitValid().valid 
+                        ? "bg-green-500/10 text-green-600 border-green-500/25 dark:text-green-400" 
+                        : "bg-orange-500/10 text-orange-600 border-orange-500/25 dark:text-orange-400"
+                    }`}>
+                      <p>{isSplitValid().message}</p>
+                      <div className="w-full h-1.5 bg-slate-200 dark:bg-muted/50 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${getSplitProgress()}%` }}
+                          transition={{ type: "spring", stiffness: 180, damping: 18 }}
+                          className={`h-full rounded-full ${
+                            isSplitValid().valid 
+                              ? "bg-green-500 dark:bg-green-400" 
+                              : getSplitProgress() > 100 
+                                ? "bg-red-500 dark:bg-red-400" 
+                                : "bg-orange-500 dark:bg-orange-400"
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <FormField
                 control={form.control}
@@ -398,20 +628,6 @@ const AddExpense = ({ onClose, onSubmit, groups = [], loading = false }) => {
                 )}
               />
 
-              {selectedGroupId && groupMembers.length > 0 && form.watch("amount") && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm font-medium text-blue-900 mb-2">
-                    Split Preview (Equal)
-                  </p>
-                  <p className="text-xs text-blue-700">
-                    Each of {groupMembers.length} members will pay:{" "}
-                    <span className="font-semibold">
-                      {form.watch("currency")} {(parseFloat(form.watch("amount") || 0) / groupMembers.length).toFixed(2)}
-                    </span>
-                  </p>
-                </div>
-              )}
-
               <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
@@ -426,7 +642,7 @@ const AddExpense = ({ onClose, onSubmit, groups = [], loading = false }) => {
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
+                  className="flex-1 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold shadow-md active:scale-98 transition-all"
                   disabled={loadingMembers}
                   onClick={() => console.log("🔘 Submit button clicked")}
                 >

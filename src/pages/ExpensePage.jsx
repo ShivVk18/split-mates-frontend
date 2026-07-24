@@ -7,9 +7,14 @@ import { ExpenseCards } from "@/components/Expense/ExpenseCard";
 import AddExpense from "@/components/Expense/AddExpenseForm";
 import expenseService from "@/services/expenseService";
 import { toast } from "sonner";
-
+import useSEO from "@/hooks/useSEO";
 
 const ExpensePage = () => {
+  useSEO({
+    title: "Expenses",
+    description: "Manage group expenses on SplitMates. Record your outlays, categorize them, and keep your group balances up-to-date drama-free."
+  });
+
   const navigate = useNavigate();
   
   // Fetch expenses

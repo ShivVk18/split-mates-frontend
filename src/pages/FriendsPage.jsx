@@ -14,6 +14,7 @@ import Suggestions from "@/components/Friends/Suggestion"
 import PendingRequests from "@/components/Friends/PendingRequest"
 import FriendsList from "@/components/Friends/FriendList"
 import { toast } from "sonner"
+import useSEO from "@/hooks/useSEO"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -22,6 +23,10 @@ const fadeInUp = {
 }
 
 export default function FriendsPage() {
+  useSEO({
+    title: "Friends",
+    description: "Manage friendships on SplitMates. Search for other members, accept friend requests, and view friend suggestions."
+  });
   
 
   // Email search (separate from general search)
@@ -59,14 +64,14 @@ export default function FriendsPage() {
   const onSendRequestFromEmail = async () => {
     try {
       await friendService.sendFriendRequest(emailQuery)
-      toast( "Your friend request has been sent.")
+      toast.success("Your friend request has been sent.")
       // refresh relation status
       if (debouncedEmail && debouncedEmail.length > 3) {
         const res = await userService.searchByEmail(debouncedEmail)
         setEmailResult(res?.data ?? res ?? null)
       }
     } catch (e) {
-      toast("Unable to send request")
+      toast.error(e.response?.data?.message || e.message || "Unable to send request.")
     }
   }
 

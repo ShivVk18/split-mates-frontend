@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router'
+import useSEO from '@/hooks/useSEO'
 
 // Modular Landing Components
 import ThemeToggle from '@/components/landing/ThemeToggle'
 import HeroSection from '@/components/landing/HeroSection'
 import BentoFeatures from '@/components/landing/BentoFeatures'
 import TimelineProcess from '@/components/landing/TimelineProcess'
-import WhyChooseUs from '@/components/landing/WhyChooseUs'
 import PricingSection from '@/components/landing/PricingSection'
 import FaqAccordion from '@/components/landing/FaqAccordion'
 import CtaSection from '@/components/landing/CtaSection'
 import LandingFooter from '@/components/landing/LandingFooter'
 
 export default function LandingPage() {
+  useSEO({
+    title: "Split Group Expenses Drama-Free",
+    description: "SplitMates is the ultimate Gen-Z coded bill splitter. Auto-calculate optimal settlements with AI, track shared expenses, and avoid awkward money talks. No cap."
+  });
+
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isHeaderVisible, setIsHeaderVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
@@ -55,9 +60,42 @@ export default function LandingPage() {
       
       {/* Subtle Ambient light spotlight beams (Tailwind Semantic Colors) */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-orange-500/5 dark:bg-orange-500/[0.03] rounded-full blur-[120px] -translate-y-1/2" />
-        <div className="absolute top-[20%] right-1/4 w-[600px] h-[600px] bg-muted/20 rounded-full blur-[140px]" />
-        <div className="absolute bottom-0 right-10 w-[500px] h-[500px] bg-orange-500/5 dark:bg-orange-500/[0.03] rounded-full blur-[120px] translate-y-1/3" />
+        <motion.div 
+          animate={{
+            x: [0, 30, -20, 0],
+            y: [0, -40, 20, 0],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-orange-500/5 dark:bg-orange-500/[0.03] rounded-full blur-[120px] -translate-y-1/2" 
+        />
+        <motion.div 
+          animate={{
+            x: [0, -40, 30, 0],
+            y: [0, 30, -50, 0],
+          }}
+          transition={{
+            duration: 22,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute top-[20%] right-1/4 w-[600px] h-[600px] bg-muted/20 rounded-full blur-[140px]" 
+        />
+        <motion.div 
+          animate={{
+            x: [0, 20, -30, 0],
+            y: [0, -20, 40, 0],
+          }}
+          transition={{
+            duration: 16,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute bottom-0 right-10 w-[500px] h-[500px] bg-orange-500/5 dark:bg-orange-500/[0.03] rounded-full blur-[120px] translate-y-1/3" 
+        />
       </div>
 
       {/* Floating Header */}
@@ -71,14 +109,11 @@ export default function LandingPage() {
             className="fixed top-6 left-1/2 z-50 w-[90%] max-w-5xl"
           >
             <div className="bg-background/80 backdrop-blur-md border border-border rounded-full shadow-lg px-6 py-3 flex items-center justify-between">
-              {/* Logo */}
               <div 
                 className="flex items-center space-x-2 cursor-pointer" 
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
-                <div className="h-7 w-7 rounded-lg bg-foreground flex items-center justify-center">
-                  <span className="text-background font-bold text-xs">SM</span>
-                </div>
+                <img src="/logo.svg" alt="SplitMates Logo" className="h-7 w-7 shrink-0 object-contain" />
                 <span className="font-bold text-base bg-gradient-to-r from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent">
                   SplitMates
                 </span>
@@ -86,7 +121,7 @@ export default function LandingPage() {
 
               {/* Navigation */}
               <nav className="hidden md:flex items-center space-x-8">
-                {['Features', 'Timeline', 'Why Us', 'Pricing', 'FAQs'].map((item) => (
+                {['Features', 'Timeline', 'Pricing', 'FAQs'].map((item) => (
                   <a
                     key={item}
                     href={`#${item.toLowerCase().replace(' ', '-')}`}
@@ -140,7 +175,7 @@ export default function LandingPage() {
             exit={{ opacity: 0, y: -15 }}
             className="fixed top-24 left-6 right-6 z-40 bg-background/95 backdrop-blur-xl border border-border rounded-2xl shadow-xl p-6 md:hidden flex flex-col space-y-4"
           >
-            {['Features', 'Timeline', 'Why Us', 'Pricing', 'FAQs'].map((item) => (
+            {['Features', 'Timeline', 'Pricing', 'FAQs'].map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase().replace(' ', '-')}`}
@@ -174,8 +209,6 @@ export default function LandingPage() {
       <BentoFeatures />
       
       <TimelineProcess />
-      
-      <WhyChooseUs />
       
       <PricingSection onPlanSelect={() => navigate('/sign-up')} />
       

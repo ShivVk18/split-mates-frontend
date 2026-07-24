@@ -27,7 +27,7 @@ const scaleIn = {
   transition: { duration: 0.3, ease: "easeOut" }
 }
 
-export function SignInForm({ isLoading, onSubmit }) {
+export function SignInForm({ isLoading, onSubmit, googleButton }) {
   const [showPassword, setShowPassword] = useState(false)
 
   const form = useForm({
@@ -111,27 +111,34 @@ export function SignInForm({ isLoading, onSubmit }) {
             </Button>
           </div>
 
-          {/* Submit Button */}
-          <motion.div 
-            whileHover={{ scale: 1.02 }} 
-            whileTap={{ scale: 0.98 }}
-            className="pt-4"
-          >
-            <Button 
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white py-3 shadow-lg hover:shadow-xl transition-all duration-200"
-              disabled={isLoading}
+          {/* Submit Button & Google Login Button Side-by-Side */}
+          <div className="flex items-center gap-3 pt-4">
+            <motion.div 
+              whileHover={{ scale: 1.01 }} 
+              whileTap={{ scale: 0.99 }}
+              className="flex-grow"
             >
-              {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Please wait...</span>
-                </div>
-              ) : (
-                <span>Sign In</span>
-              )}
-            </Button>
-          </motion.div>
+              <Button 
+                type="submit"
+                className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white py-3 shadow-md hover:shadow-lg transition-all duration-200"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Please wait...</span>
+                  </div>
+                ) : (
+                  <span>Sign In</span>
+                )}
+              </Button>
+            </motion.div>
+            {googleButton && (
+              <div className="shrink-0 flex items-center justify-center min-w-[40px] min-h-[40px]">
+                {googleButton}
+              </div>
+            )}
+          </div>
         </form>
       </Form>
     </motion.div>

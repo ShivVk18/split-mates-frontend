@@ -8,14 +8,22 @@ import { useNavigate } from 'react-router'
 import { SignInForm } from '@/components/SignInForm'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/userStore'
+import { toast } from 'sonner'
+import { GoogleLogin } from '@react-oauth/google'
+import useSEO from '@/hooks/useSEO'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.5, ease: "easeOut" }
-}
+}  
 
 export default function SignInPage() { 
+  useSEO({
+    title: "Sign In",
+    description: "Sign in to your SplitMates account to view dashboard groups, record shared transactions, and check AI reports."
+  });
+
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const [isNavbarVisible, setIsNavbarVisible] = useState(true)
@@ -55,15 +63,44 @@ export default function SignInPage() {
         localStorage.setItem('user', JSON.stringify(response.data.data.user))
         localStorage.setItem('token', response.data.data.accessToken)
         useAuthStore.getState().setUser({ user: response.data.data.user, token: response.data.data.accessToken });
+        toast.success("Welcome back! Signed in successfully.")
         navigate('/dashboard')
       } else {
-        console.log("Invalid credentials")
+        toast.error(response.data.message || "Invalid credentials. Please try again.")
       }
     } catch (error) {
       console.error("Error signing in:", error)
+      toast.error(error.response?.data?.message || error.message || "Failed to sign in. Please try again.")
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true)
+    try {
+      const response = await axios.post('/api/v1/auth/google-login', {
+        idToken: credentialResponse.credential,
+      })
+      if (response.data.success) {
+        localStorage.setItem('user', JSON.stringify(response.data.data.user))
+        localStorage.setItem('token', response.data.data.accessToken)
+        useAuthStore.getState().setUser({ user: response.data.data.user, token: response.data.data.accessToken });
+        toast.success("Signed in successfully via Google!")
+        navigate('/dashboard')
+      } else {
+        toast.error(response.data.message || "Google authentication failed")
+      }
+    } catch (error) {
+      console.error("Google login error:", error)
+      toast.error(error.response?.data?.message || error.message || "Failed to sign in via Google")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleError = () => {
+    toast.error("Google Sign-In initialization failed")
   }
 
   return (
@@ -118,6 +155,15 @@ export default function SignInPage() {
                   <SignInForm
                     isLoading={isLoading}
                     onSubmit={handleSignInSubmit}
+                    googleButton={
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        type="icon"
+                        shape="circle"
+                        theme="outline"
+                      />
+                    }
                   />
                 </AnimatePresence>
                 

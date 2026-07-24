@@ -1,124 +1,74 @@
-import React, { useState } from "react";
-import { CheckCircle } from "lucide-react";
+import React from "react";
+import { motion } from "framer-motion";
+import { CheckCircle, Sparkles, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function PricingSection({ onPlanSelect }) {
-  const [period, setPeriod] = useState("monthly");
-
-  const plans = [
-    {
-      name: "Starter",
-      price: 0,
-      description: "Ideal for roommate groups and occasional trips.",
-      features: [
-        "Up to 3 active groups",
-        "Standard equal bill splitting",
-        "Basic expense categorization",
-        "Mobile & Web dashboard access",
-        "Email customer support"
-      ],
-      cta: "Get Started Free"
-    },
-    {
-      name: "Pro",
-      price: period === "monthly" ? 5 : 4,
-      description: "For power users looking to save money and gain insights.",
-      features: [
-        "Unlimited active groups",
-        "Smart Wealth Coach",
-        "Premium Monthly savings reports",
-        "Styled PDF exports",
-        "Advanced custom split structures",
-        "Smart automatic overdue reminders",
-        "Priority 24/7 support"
-      ],
-      cta: "Try Pro Free",
-      popular: true
-    },
-    {
-      name: "Enterprise",
-      price: 15,
-      description: "Tailored for organizations and travel agencies.",
-      features: [
-        "Everything in Pro",
-        "Custom workspace integrations",
-        "Receipt scanning & OCR automation",
-        "Dedicated success manager",
-        "Custom SLA guarantees",
-        "Developer API & webhook access"
-      ],
-      cta: "Contact Sales"
-    }
-  ];
-
   return (
     <section id="pricing" className="w-full bg-muted/20 border-y border-border py-24 px-6 scroll-mt-24 relative z-10">
       <div className="max-w-7xl mx-auto">
+        {/* Section Header */}
         <div className="text-center mb-16">
-          <Badge className="mb-4 bg-muted border border-border text-foreground px-3 py-1 rounded-full text-xs">Pricing</Badge>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-4">Pricing Plans</h2>
-          
-          {/* Switch toggle */}
-          <div className="flex items-center justify-center gap-3 mt-6">
-            <span className={`text-xs ${period === "monthly" ? "text-foreground font-medium" : "text-muted-foreground"}`}>Monthly</span>
-            <button 
-              onClick={() => setPeriod(period === "monthly" ? "annually" : "monthly")}
-              className="w-9 h-5 bg-muted border border-border rounded-full p-0.5 transition-colors duration-200 flex items-center relative cursor-pointer"
-            >
-              <div className={`w-3.5 h-3.5 bg-foreground rounded-full transition-transform duration-200 ${period === "annually" ? "translate-x-4" : ""}`} />
-            </button>
-            <span className={`text-xs ${period === "annually" ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-              Annually <span className="text-[10px] text-orange-600 dark:text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded-full ml-1 font-bold">Save 20%</span>
-            </span>
-          </div>
+          <Badge className="mb-4 bg-muted border border-border text-foreground px-3 py-1 rounded-full text-xs">Cost Vibe</Badge>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-4">Subscription Plans</h2>
+          <p className="text-muted-foreground text-sm max-w-md mx-auto">Sleek, transparent pricing tiers built for you and the crew.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
-          {plans.map((plan, idx) => (
-            <div 
-              key={idx}
-              className={`rounded-2xl border ${plan.popular ? 'border-orange-500/35 dark:border-orange-500/25 ring-1 ring-orange-500/10' : 'border-border'} bg-card p-6 flex flex-col justify-between relative overflow-hidden shadow-xs`}
-            >
-              {plan.popular && (
-                <div className="absolute top-0 right-0 bg-orange-600 text-white text-[9px] uppercase font-bold tracking-wider px-3 py-1 rounded-bl-lg">
-                  Recommended
-                </div>
-              )}
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-bold text-foreground mb-1">{plan.name}</h3>
-                  <p className="text-xs text-muted-foreground">{plan.description}</p>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="text-3xl font-bold text-foreground">${plan.price}</span>
-                  <span className="text-xs text-muted-foreground ml-1">/month</span>
-                </div>
-                <hr className="border-border" />
-                <ul className="space-y-3 text-xs text-muted-foreground">
-                  {plan.features.map((feature, fIdx) => (
-                    <li key={fIdx} className="flex items-center gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-8">
+        {/* Coming Soon Panel */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.96, y: 20 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          whileHover={{ y: -4, transition: { duration: 0.25 } }}
+          className="bg-card border border-border rounded-2xl p-8 md:p-12 max-w-3xl mx-auto shadow-md backdrop-blur-md relative overflow-hidden transform-gpu cursor-default"
+        >
+          {/* Decorative Sparkle corner */}
+          <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-orange-500/10 to-transparent rounded-bl-full pointer-events-none" />
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
+            {/* Description Col */}
+            <div className="md:col-span-3 space-y-4">
+              <Badge className="bg-orange-500/10 text-orange-600 dark:text-orange-400 border-transparent text-[9px] font-bold uppercase tracking-wider py-1 px-2.5 rounded-full">
+                Beta Era Special
+              </Badge>
+              <h3 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
+                Premium Tiers — Coming Soon (Lowkey Free)
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                We are currently cooking up our premium subscription models. During our beta era, **all premium capabilities** (including AI-Powered settlements, advanced custom splits, and automated reminders) are **100% free** for all users! No cap.
+              </p>
+              
+              <div className="pt-2">
                 <Button 
                   onClick={onPlanSelect}
-                  className={`w-full py-4.5 rounded-xl font-bold text-xs ${
-                    plan.popular 
-                      ? 'bg-foreground text-background hover:bg-foreground/90' 
-                      : 'bg-muted hover:bg-accent text-foreground border border-border'
-                  } transition-all duration-200 cursor-pointer`}
+                  className="bg-foreground text-background hover:bg-foreground/90 font-bold text-xs py-4 px-6 rounded-xl cursor-pointer transition-transform duration-150 active:scale-95 flex items-center gap-2"
                 >
-                  {plan.cta}
+                  <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
+                  Get Early Access Now
                 </Button>
               </div>
             </div>
-          ))}
-        </div>
+
+            {/* Features Col */}
+            <div className="md:col-span-2 space-y-3 border-t md:border-t-0 md:border-l border-border pt-6 md:pt-0 md:pl-8">
+              <p className="text-[10px] font-bold text-foreground uppercase tracking-wider mb-2">What is included free:</p>
+              {[
+                "Unlimited Active Groups",
+                "AI-Powered Settlements",
+                "Advanced custom split types",
+                "Auto categorizations",
+                "Smart overdue reminders"
+              ].map((feat, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <CheckCircle className="w-4 h-4 text-orange-500 shrink-0" />
+                  <span>{feat}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

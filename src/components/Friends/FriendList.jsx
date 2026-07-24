@@ -55,11 +55,11 @@ export function FriendsList() {
   const onRemove = async (friendId) => {
     try {
       await friendService.removeFriend(friendId)
-      toast("Friend removed successfully.")
+      toast.success("Friend removed successfully.")
       setItems((prev) => prev.filter((f) => f.id !== friendId))
       if (total !== null) setTotal((t) => (t ? t - 1 : t))
     } catch (e) {
-      toast("Please try again.")
+      toast.error(e.response?.data?.message || e.message || "Failed to remove friend. Please try again.")
     }
   }
 
@@ -78,9 +78,9 @@ export function FriendsList() {
           {items.map((f) => (
             <div
               key={f.id}
-              className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 hover:bg-muted/80 border border-border transition-all duration-150"
+              className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-muted/40 hover:bg-muted/80 border border-border transition-all duration-150 min-w-0"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
                   <span className="text-orange-600 dark:text-orange-400 font-semibold text-sm">
                     {f.name
@@ -97,7 +97,7 @@ export function FriendsList() {
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-full text-xs px-4 border-border text-foreground hover:bg-accent cursor-pointer"
+                className="rounded-full text-xs px-4 border-border text-foreground hover:bg-accent cursor-pointer shrink-0"
                 onClick={() => onRemove(f.id)}
               >
                 Remove

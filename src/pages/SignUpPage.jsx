@@ -8,6 +8,9 @@ import { useNavigate } from 'react-router'
 import { SignUpForm } from '@/components/SignUpForm'
 import axios from 'axios'
 import { toast } from 'sonner'
+import { GoogleLogin } from '@react-oauth/google'
+import useSEO from '@/hooks/useSEO'
+import { useAuthStore } from '@/stores/userStore'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -16,6 +19,11 @@ const fadeInUp = {
 }  
 
 export default function SignUpPage() { 
+  useSEO({
+    title: "Create Account",
+    description: "Create a new SplitMates account and get started splitting group expenses, keeping track of shared ledgers, and optimizing debts with AI."
+  });
+
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const [isNavbarVisible, setIsNavbarVisible] = useState(true)
@@ -63,6 +71,33 @@ export default function SignUpPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true)
+    try {
+      const response = await axios.post('/api/v1/auth/google-login', {
+        idToken: credentialResponse.credential,
+      })
+      if (response.data.success) {
+        localStorage.setItem('user', JSON.stringify(response.data.data.user))
+        localStorage.setItem('token', response.data.data.accessToken)
+        useAuthStore.getState().setUser({ user: response.data.data.user, token: response.data.data.accessToken });
+        toast.success("Signed in successfully via Google!")
+        navigate('/dashboard')
+      } else {
+        toast.error(response.data.message || "Google authentication failed")
+      }
+    } catch (error) {
+      console.error("Google login error:", error)
+      toast.error(error.response?.data?.message || error.message || "Failed to sign in via Google")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleError = () => {
+    toast.error("Google Sign-In initialization failed")
   }
 
   return (
@@ -125,6 +160,15 @@ export default function SignUpPage() {
                   <SignUpForm
                     isLoading={isLoading} 
                     onSubmit={handleSignUpSubmit} 
+                    googleButton={
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        type="icon"
+                        shape="circle"
+                        theme="outline"
+                      />
+                    }
                   />
                 </AnimatePresence>
 

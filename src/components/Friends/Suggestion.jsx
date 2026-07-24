@@ -34,10 +34,10 @@ const Suggestions = () => {
   const onSend = async (email) => {
     try {
       await friendService.sendFriendRequest(email)
-      toast("Friend request successfully sent.")
+      toast.success("Friend request successfully sent.")
       setItems((prev) => prev.filter((u) => u.email !== email))
     } catch (e) {
-      toast("Please try again.")
+      toast.error(e.response?.data?.message || e.message || "Failed to send friend request. Please try again.")
     }
   }
 
@@ -58,9 +58,9 @@ const Suggestions = () => {
           {items.map((u) => (
             <div
               key={u.id}
-              className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 hover:bg-muted/80 border border-border transition-all duration-150"
+              className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-muted/40 hover:bg-muted/80 border border-border transition-all duration-150 min-w-0"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
                   <span className="text-orange-600 dark:text-orange-400 font-semibold text-sm">
                     {u.name
@@ -74,7 +74,7 @@ const Suggestions = () => {
                   <p className="text-[10px] text-muted-foreground truncate">{u.email}</p>
                 </div>
               </div>
-              <Button size="sm" className="bg-foreground text-background hover:bg-foreground/90 font-bold rounded-full text-xs px-4 cursor-pointer" onClick={() => onSend(u.email)}>
+              <Button size="sm" className="bg-foreground text-background hover:bg-foreground/90 font-bold rounded-full text-xs px-4 cursor-pointer shrink-0" onClick={() => onSend(u.email)}>
                 Add
               </Button>
             </div>

@@ -31,20 +31,20 @@ export function PendingRequests() {
   const onAccept = async (friendId) => {
     try {
       await friendService.acceptFriendRequest(friendId)
-      toast("Friend request accepted.")
+      toast.success("Friend request accepted.")
       setRequests((prev) => prev.filter((r) => r.user?.id !== friendId))
     } catch (e) {
-      toast("Please try again.")
+      toast.error(e.response?.data?.message || e.message || "Failed to accept friend request.")
     }
   }
 
   const onDecline = async (friendId) => {
     try {
       await friendService.declineFriendRequest(friendId)
-      toast("Friend request declined.")
+      toast.success("Friend request declined.")
       setRequests((prev) => prev.filter((r) => r.user?.id !== friendId))
     } catch (e) {
-      toast("Please try again.")
+      toast.error(e.response?.data?.message || e.message || "Failed to decline friend request.")
     }
   }
 
@@ -68,9 +68,9 @@ export function PendingRequests() {
           {requests.map((req) => (
             <div
               key={req.id}
-              className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 border border-border"
+              className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-muted/40 border border-border min-w-0"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
                   <span className="text-orange-600 dark:text-orange-400 font-semibold text-sm">
                     {req.user?.name
@@ -84,7 +84,7 @@ export function PendingRequests() {
                   <p className="text-[10px] text-muted-foreground truncate">{req.user?.email}</p>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 shrink-0">
                 <Button size="sm" className="bg-foreground text-background hover:bg-foreground/90 font-bold rounded-full text-xs px-4 cursor-pointer" onClick={() => onAccept(req.user.id)}>
                   Accept
                 </Button>

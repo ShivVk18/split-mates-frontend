@@ -19,9 +19,7 @@ export function Navbar() {
             className="flex items-center space-x-2 cursor-pointer"
             onClick={() => navigation('/')}
           >
-            <div className="h-6 w-6 rounded-lg bg-foreground flex items-center justify-center">
-              <span className="text-background font-bold text-xs">SM</span>
-            </div>
+            <img src="/logo.svg" alt="SplitMates Logo" className="h-6 w-6 shrink-0 object-contain" />
             <h1 className="text-sm font-bold text-foreground">
               SplitMates
             </h1>

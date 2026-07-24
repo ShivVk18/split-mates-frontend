@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -10,30 +11,49 @@ export default function WhyChooseUs() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
         {/* Left Side: Copy */}
-        <div className="space-y-6">
+        <motion.div 
+          initial={{ opacity: 0, x: -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="space-y-6"
+        >
           <Badge className="bg-muted border border-border text-foreground px-3 py-1 rounded-full text-xs">Comparison</Badge>
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">Why SplitMates?</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Legacy spreadsheets are prone to mathematical errors, lack real-time synchronization, and require awkward follow-ups. SplitMates simplifies group balances automatically.
           </p>
           <div className="space-y-3 pt-2">
-            <div className="flex items-start space-x-2.5">
-              <CheckCircle className="w-4.5 h-4.5 text-orange-500 shrink-0 mt-0.5" />
-              <span className="text-xs text-muted-foreground">Automatic transaction routing simplifies multi-party balances</span>
-            </div>
-            <div className="flex items-start space-x-2.5">
-              <CheckCircle className="w-4.5 h-4.5 text-orange-500 shrink-0 mt-0.5" />
-              <span className="text-xs text-muted-foreground">Smart balance reports extract monthly saving suggestions</span>
-            </div>
-            <div className="flex items-start space-x-2.5">
-              <CheckCircle className="w-4.5 h-4.5 text-orange-500 shrink-0 mt-0.5" />
-              <span className="text-xs text-muted-foreground">Instant notifications keep your group updated</span>
-            </div>
+            {[
+              "Automatic transaction routing simplifies multi-party balances",
+              "Smart balance reports extract monthly saving suggestions",
+              "Instant notifications keep your group updated"
+            ].map((text, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, x: -15 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.15 }}
+                className="flex items-start space-x-2.5"
+              >
+                <CheckCircle className="w-4.5 h-4.5 text-orange-500 shrink-0 mt-0.5" />
+                <span className="text-xs text-muted-foreground">{text}</span>
+              </motion.div>
+            ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Right Side: Visual Comparison Cards */}
-        <div className="border border-border bg-card/30 rounded-2xl p-6 space-y-4 backdrop-blur-md">
+        <motion.div 
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          whileHover={{ scale: 1.015, y: -4, rotateY: 1, transition: { duration: 0.25 } }}
+          style={{ perspective: 1000 }}
+          className="border border-border bg-card/30 rounded-2xl p-6 space-y-4 backdrop-blur-md transform-gpu cursor-default"
+        >
           <h3 className="text-base font-bold text-foreground">Feature Comparison</h3>
           <div className="space-y-3">
             <div className="p-4 rounded-xl border border-border bg-background text-xs">
@@ -53,7 +73,7 @@ export default function WhyChooseUs() {
               </ul>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

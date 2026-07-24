@@ -72,7 +72,7 @@ const ViewSettlementModal = ({ settlement, onClose, onComplete }) => {
           </div>
 
           {/* Amount Card */}
-          <div className="bg-gradient-to-br from-blue-50 to-teal-50 border border-blue-200 rounded-xl p-6 text-center">
+          <div className="bg-gradient-to-br from-blue-50 to-teal-50 border border-blue-200 dark:bg-none dark:bg-muted/50 dark:border-border/50 rounded-xl p-6 text-center">
             <p className="text-sm text-slate-600 mb-2">Settlement Amount</p>
             <p className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
               ₹{settlement.amount.toLocaleString("en-IN")}

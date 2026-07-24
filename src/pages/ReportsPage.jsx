@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
+import { motion } from "framer-motion";
 import api from "@/utils/AxiosInstance";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,24 +9,28 @@ import { ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import {
-  Sparkles,
   BarChart3,
   MessageSquare,
   Send,
   Loader2,
-  AlertCircle,
-  Calendar,
-  DollarSign,
   TrendingUp,
   Brain,
   Download,
-  Users
+  Users,
+  Mail
 } from "lucide-react";
+
+import useSEO from "@/hooks/useSEO";
 
 // Chart Colors
 const COLORS = ["#EA580C", "#D97706", "#475569", "#78716C", "#52525B", "#71717A", "#27272A", "#A1A1AA"];
 
 const ReportsPage = () => {
+  useSEO({
+    title: "AI Reports",
+    description: "Get smart, automated AI financial insights, expense categorizations, and savings tips with SplitMates AI Auditing."
+  });
+
   const [groups, setGroups] = useState([]);
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [loadingGroups, setLoadingGroups] = useState(true);
@@ -92,11 +97,12 @@ const ReportsPage = () => {
 
           const clonedElement = clonedDoc.querySelector('[data-report-container="true"]');
           if (clonedElement) {
-            clonedElement.className = "p-8 bg-white text-slate-800 text-sm space-y-4";
+            clonedElement.className = "p-8 bg-white text-slate-800 text-base space-y-4";
             clonedElement.style.fontFamily = "system-ui, -apple-system, sans-serif";
             clonedElement.style.color = "#1e293b";
             clonedElement.style.backgroundColor = "#ffffff";
             clonedElement.style.padding = "32px";
+            clonedElement.style.fontSize = "15px";
             
             const allElements = clonedElement.getElementsByTagName("*");
             for (let el of allElements) {
@@ -107,18 +113,20 @@ const ReportsPage = () => {
                 el.style.fontWeight = "bold";
                 el.style.marginTop = "20px";
                 el.style.marginBottom = "8px";
-                if (tagName === "H1") el.style.fontSize = "22px";
-                else if (tagName === "H2") el.style.fontSize = "18px";
-                else el.style.fontSize = "15px";
+                if (tagName === "H1") el.style.fontSize = "26px";
+                else if (tagName === "H2") el.style.fontSize = "22px";
+                else el.style.fontSize = "18px";
               } else if (tagName === "P") {
                 el.style.color = "#334155";
                 el.style.marginBottom = "12px";
                 el.style.lineHeight = "1.6";
+                el.style.fontSize = "15px";
               } else if (tagName === "LI") {
                 el.style.color = "#334155";
                 el.style.marginBottom = "6px";
                 el.style.marginLeft = "20px";
                 el.style.listStyleType = "disc";
+                el.style.fontSize = "15px";
               } else if (tagName === "UL" || tagName === "OL") {
                 el.style.marginBottom = "12px";
                 el.style.paddingLeft = "16px";
@@ -164,7 +172,21 @@ const ReportsPage = () => {
 
   const [userReportData, setUserReportData] = useState(null);
   const [generatingUserReport, setGeneratingUserReport] = useState(false);
+  const [sendingReportEmail, setSendingReportEmail] = useState(false);
   const userReportRef = useRef(null);
+
+  const handleSendReportEmail = async () => {
+    setSendingReportEmail(true);
+    try {
+      const response = await api.post("/ai/test-email");
+      toast.success(response.data?.message || "Report email sent successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to send report email. Ensure EMAIL_USER & EMAIL_PASS are set in backend .env");
+    } finally {
+      setSendingReportEmail(false);
+    }
+  };
 
   const handleGenerateUserReport = async () => {
     setGeneratingUserReport(true);
@@ -202,11 +224,12 @@ const ReportsPage = () => {
 
           const clonedElement = clonedDoc.querySelector('[data-user-report-container="true"]');
           if (clonedElement) {
-            clonedElement.className = "p-8 bg-white text-slate-800 text-sm space-y-4";
+            clonedElement.className = "p-8 bg-white text-slate-800 text-base space-y-4";
             clonedElement.style.fontFamily = "system-ui, -apple-system, sans-serif";
             clonedElement.style.color = "#1e293b";
             clonedElement.style.backgroundColor = "#ffffff";
             clonedElement.style.padding = "32px";
+            clonedElement.style.fontSize = "15px";
             
             const allElements = clonedElement.getElementsByTagName("*");
             for (let el of allElements) {
@@ -217,18 +240,20 @@ const ReportsPage = () => {
                 el.style.fontWeight = "bold";
                 el.style.marginTop = "20px";
                 el.style.marginBottom = "8px";
-                if (tagName === "H1") el.style.fontSize = "22px";
-                else if (tagName === "H2") el.style.fontSize = "18px";
-                else el.style.fontSize = "15px";
+                if (tagName === "H1") el.style.fontSize = "26px";
+                else if (tagName === "H2") el.style.fontSize = "22px";
+                else el.style.fontSize = "18px";
               } else if (tagName === "P") {
                 el.style.color = "#334155";
                 el.style.marginBottom = "12px";
                 el.style.lineHeight = "1.6";
+                el.style.fontSize = "15px";
               } else if (tagName === "LI") {
                 el.style.color = "#334155";
                 el.style.marginBottom = "6px";
                 el.style.marginLeft = "20px";
                 el.style.listStyleType = "disc";
+                el.style.fontSize = "15px";
               } else if (tagName === "UL" || tagName === "OL") {
                 el.style.marginBottom = "12px";
                 el.style.paddingLeft = "16px";
@@ -416,8 +441,41 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
 
+          {generatingReport && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-card border border-border rounded-2xl p-16 text-center space-y-6 shadow-xs"
+            >
+              <div className="relative flex items-center justify-center mx-auto w-16 h-16">
+                <motion.div
+                  animate={{ scale: [1, 2.2], opacity: [0.6, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut" }}
+                  className="absolute w-12 h-12 bg-orange-500/20 rounded-full"
+                />
+                <motion.div
+                  animate={{ scale: [1, 1.6], opacity: [0.8, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut", delay: 0.35 }}
+                  className="absolute w-12 h-12 bg-orange-500/30 rounded-full"
+                />
+                <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+                  <Brain className="w-8 h-8 text-white animate-pulse" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-foreground">SplitMates AI is auditing ledger...</h4>
+                <p className="text-[10px] text-muted-foreground max-w-sm mx-auto">Extracting monthly transaction records, analyzing categorizations, and compiling smart saving tips.</p>
+              </div>
+            </motion.div>
+          )}
+
           {reportData && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            >
               {/* Visual Stats */}
               <div className="lg:col-span-1 space-y-6">
                 {/* Spend summary card */}
@@ -433,7 +491,7 @@ const ReportsPage = () => {
                     <p className="text-[10px] text-muted-foreground mt-2">Analyzed for group "{reportData.groupName}"</p>
                   </CardContent>
                 </Card>
-
+ 
                 {/* Category Pie Chart */}
                 {reportData.categoryBreakdown?.length > 0 && (
                   <Card className="bg-card border-border shadow-xs">
@@ -464,7 +522,7 @@ const ReportsPage = () => {
                     </CardContent>
                   </Card>
                 )}
-
+ 
                 {/* Member Bar Chart */}
                 {reportData.memberBreakdown?.length > 0 && (
                   <Card className="bg-card border-border shadow-xs">
@@ -484,7 +542,7 @@ const ReportsPage = () => {
                   </Card>
                 )}
               </div>
-
+ 
               {/* Markdown AI report */}
               <div className="lg:col-span-2">
                 <Card className="bg-card border-border shadow-xs h-full flex flex-col">
@@ -506,9 +564,9 @@ const ReportsPage = () => {
                       Download PDF
                     </Button>
                   </CardHeader>
-                  <CardContent className="flex-1 p-6 overflow-hidden">
-                    <ScrollArea className="h-[550px] pr-4">
-                      <div ref={reportRef} data-report-container="true" className="p-8 bg-card border border-border rounded-2xl shadow-xs prose prose-slate max-w-none text-foreground text-xs leading-relaxed space-y-4">
+                  <CardContent className="flex-1 p-6 overflow-hidden flex flex-col min-h-0">
+                    <ScrollArea className="flex-1 pr-4">
+                      <div ref={reportRef} data-report-container="true" className="prose prose-slate max-w-none text-foreground text-xs leading-relaxed space-y-4">
                         {/* Report Header for PDF */}
                         <div className="border-b border-border pb-4 mb-6">
                           <div className="flex justify-between items-center">
@@ -524,7 +582,7 @@ const ReportsPage = () => {
                   </CardContent>
                 </Card>
               </div>
-            </div>
+            </motion.div>
           )}
         </TabsContent>
 
@@ -538,7 +596,7 @@ const ReportsPage = () => {
               </CardTitle>
               <CardDescription>Analyze your overall share of spending and get personalized savings tips across all groups</CardDescription>
             </CardHeader>
-            <CardContent className="pb-6">
+            <CardContent className="pb-6 flex flex-wrap gap-3">
               <Button
                 onClick={handleGenerateUserReport}
                 disabled={generatingUserReport}
@@ -556,32 +614,84 @@ const ReportsPage = () => {
                   </>
                 )}
               </Button>
+
+              <Button
+                onClick={handleSendReportEmail}
+                disabled={sendingReportEmail}
+                variant="outline"
+                className="border-border hover:bg-accent text-foreground font-bold rounded-full py-2.5 px-6 text-xs transition-transform duration-150 active:scale-95 cursor-pointer flex items-center gap-2"
+              >
+                {sendingReportEmail ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending Email...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                    Send Report via Email
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
 
+          {generatingUserReport && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-card border border-border rounded-2xl p-16 text-center space-y-6 shadow-xs"
+            >
+              <div className="relative flex items-center justify-center mx-auto w-16 h-16">
+                <motion.div
+                  animate={{ scale: [1, 2.2], opacity: [0.6, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut" }}
+                  className="absolute w-12 h-12 bg-orange-500/20 rounded-full"
+                />
+                <motion.div
+                  animate={{ scale: [1, 1.6], opacity: [0.8, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut", delay: 0.35 }}
+                  className="absolute w-12 h-12 bg-orange-500/30 rounded-full"
+                />
+                <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+                  <Brain className="w-8 h-8 text-white animate-pulse" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-foreground">SplitMates AI is auditing ledger...</h4>
+                <p className="text-[10px] text-muted-foreground max-w-sm mx-auto">Extracting monthly transaction records, analyzing categorizations, and compiling smart saving tips.</p>
+              </div>
+            </motion.div>
+          )}
+
           {userReportData && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            >
               <div className="lg:col-span-1 space-y-6">
                 {/* Stats summary */}
-                <Card className="bg-white border-slate-200 shadow-md">
+                <Card className="bg-card border-border shadow-xs">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base font-bold">Personal Spend Summary</CardTitle>
+                    <CardTitle className="text-base font-bold text-foreground">Personal Spend Summary</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 pb-6">
-                    <div className="p-4 bg-slate-50 rounded-2xl">
-                      <p className="text-xs text-slate-500 font-medium">Total Share Owed</p>
-                      <p className="text-2xl font-bold text-slate-800 mt-1">
+                    <div className="p-4 bg-muted/50 rounded-2xl">
+                      <p className="text-xs text-muted-foreground font-medium">Total Share Owed</p>
+                      <p className="text-2xl font-bold text-foreground mt-1">
                         {userReportData.currency} {userReportData.totalSpent.toLocaleString()}
                       </p>
                     </div>
                   </CardContent>
                 </Card>
-
+ 
                 {/* Group spend distribution */}
                 {userReportData.groupBreakdown?.length > 0 && (
-                  <Card className="bg-white border-slate-200 shadow-md">
+                  <Card className="bg-card border-border shadow-xs">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-base font-bold">Group Spending Distribution</CardTitle>
+                      <CardTitle className="text-base font-bold text-foreground">Group Spending Distribution</CardTitle>
                     </CardHeader>
                     <CardContent className="h-64 flex justify-center">
                       <ResponsiveContainer width="100%" height="100%">
@@ -607,12 +717,12 @@ const ReportsPage = () => {
                     </CardContent>
                   </Card>
                 )}
-
+ 
                 {/* Category spend distribution */}
                 {userReportData.categoryBreakdown?.length > 0 && (
-                  <Card className="bg-white border-slate-200 shadow-md">
+                  <Card className="bg-card border-border shadow-xs">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-base font-bold">Category Spending Distribution</CardTitle>
+                      <CardTitle className="text-base font-bold text-foreground">Category Spending Distribution</CardTitle>
                     </CardHeader>
                     <CardContent className="h-64 flex justify-center">
                       <ResponsiveContainer width="100%" height="100%">
@@ -639,7 +749,7 @@ const ReportsPage = () => {
                   </Card>
                 )}
               </div>
-
+ 
               {/* Personal Report text */}
               <div className="lg:col-span-2">
                 <Card className="bg-card border-border shadow-xs h-full flex flex-col">
@@ -661,9 +771,9 @@ const ReportsPage = () => {
                       Download PDF
                     </Button>
                   </CardHeader>
-                  <CardContent className="flex-1 p-6 overflow-hidden">
-                    <ScrollArea className="h-[550px] pr-4">
-                      <div ref={userReportRef} data-user-report-container="true" className="p-8 bg-card border border-border rounded-2xl shadow-xs prose prose-slate max-w-none text-foreground text-xs leading-relaxed space-y-4">
+                  <CardContent className="flex-1 p-6 overflow-hidden flex flex-col min-h-0">
+                    <ScrollArea className="flex-1 pr-4">
+                      <div ref={userReportRef} data-user-report-container="true" className="prose prose-slate max-w-none text-foreground text-xs leading-relaxed space-y-4">
                         {/* Report Header for PDF */}
                         <div className="border-b border-border pb-4 mb-6">
                           <div className="flex justify-between items-center">
@@ -679,7 +789,7 @@ const ReportsPage = () => {
                   </CardContent>
                 </Card>
               </div>
-            </div>
+            </motion.div>
           )}
         </TabsContent>
 

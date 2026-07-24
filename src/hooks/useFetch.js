@@ -7,13 +7,14 @@ const useFetch = (url) => {
   const [error, setError] = useState(null);
    
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const fetchData = async () => {
-    console.log("📡 Fetch start:", url);
+  const fetchData = async (overrideUrl) => {
+    const fetchUrl = overrideUrl || url;
+    console.log("📡 Fetch start:", fetchUrl);
     setLoading(true);
 
     try { 
         await delay(500);
-      const response = await api.get(url);
+      const response = await api.get(fetchUrl);
       console.log("✅ API success:", response.data);
 
       setData(response.data.data);

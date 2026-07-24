@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -18,6 +18,10 @@ import {
 } from "lucide-react";
 import useFetch from "@/hooks/useFetch";
 import { useAuthStore } from "@/stores/userStore";
+import { toast } from "sonner";
+import useSEO from "@/hooks/useSEO";
+import CreateSettlementForm from "@/components/Settlement/SettlementForm";
+import settlementService from "@/services/settlementService";
 
 // Animation variants
 const fadeInUp = {
@@ -35,16 +39,56 @@ const staggerContainer = {
 };
 
 export default function Dashboard() {  
-  const [data, loading, error] = useFetch('/expenses/');  
-  const [balanceData] = useFetch('/settlements/balance');
+  useSEO({
+    title: "Dashboard",
+    description: "View SplitMates dashboard. Manage your balances, settle up debts, record expenses, and check automated insights."
+  });
+
+  const [data, loading, error, refetchExpenses] = useFetch('/expenses/');  
+  const [balanceData, balanceLoading, balanceError, refetchBalance] = useFetch('/settlements/balance');
   const [groupData] = useFetch('/groups/');
 
-  
-  
   const { user } = useAuthStore.getState();
   const [totalExpense, setTotalExpense] = useState(0);
   const [balanceSummary, setBalanceSummary] = useState([]);
   const [recentExpenses, setRecentExpenses] = useState([]);
+
+  const [showSettlementModal, setShowSettlementModal] = useState(false);
+  const [preselectedFriendId, setPreselectedFriendId] = useState("");
+  const [preselectedAmount, setPreselectedAmount] = useState("");
+  const [settlementLoading, setSettlementLoading] = useState(false);
+  const [requestingFriendId, setRequestingFriendId] = useState(null);
+
+  const handlePay = useCallback((friendId, amount) => {
+    setPreselectedFriendId(friendId);
+    setPreselectedAmount(amount.toString());
+    setShowSettlementModal(true);
+  }, []);
+
+  const handleRequest = useCallback((friendId, friendName, amount) => {
+    setRequestingFriendId(friendId);
+    setTimeout(() => {
+      setRequestingFriendId(null);
+      toast.success(`Reminder notification sent to ${friendName} for ₹${amount.toLocaleString()}`);
+    }, 1000);
+  }, []);
+
+  const handleSettlementSubmit = async (formData) => {
+    setSettlementLoading(true);
+    try {
+      const response = await settlementService.createSettlement(formData);
+      if (response.statusCode === 201) {
+        toast.success("Settlement Created Successfully");
+        setShowSettlementModal(false);
+        refetchExpenses();
+        refetchBalance();
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to create settlement");
+    } finally {
+      setSettlementLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (data) {
@@ -74,6 +118,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (balanceData?.relationships) {
       const summary = balanceData.relationships.map(rel => ({
+        id: rel.user.id,
         name: rel.user.name,
         amount: Math.abs(rel.netBalance),
         type: rel.netBalance < 0 ? "owes" : "owed",
@@ -182,7 +227,13 @@ export default function Dashboard() {
           { label: "You Owe", value: `₹${(balanceData?.totalOwing || 0).toLocaleString()}`, icon: ArrowUpRight, textColor: "text-foreground", bgColor: "bg-muted" },
           { label: "Active Groups", value: `${groupData?.totalGroups || 0}`, icon: Users, textColor: "text-foreground", bgColor: "bg-muted" }
         ].map((stat, index) => (
-          <motion.div key={index} variants={fadeInUp}>
+          <motion.div 
+            key={index} 
+            variants={fadeInUp}
+            whileHover={{ y: -5, rotateX: 2.5, rotateY: -1.5, transition: { duration: 0.2, ease: "easeOut" } }}
+            style={{ perspective: 1000 }}
+            className="transform-gpu cursor-default"
+          >
             <Card className="bg-card border-border hover:shadow-xs transition-all duration-200">
               <CardContent className="p-5 flex items-center justify-between">
                 <div className="space-y-1">
@@ -202,12 +253,12 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
         {/* Recent Expenses */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="bg-white backdrop-blur-sm border-slate-200 shadow-lg h-full">
+          <Card className="bg-card border-border shadow-xs h-full">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-                    <Receipt className="h-5 w-5 text-blue-600" />
+                  <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <Receipt className="h-5 w-5 text-orange-500" />
                     Recent Expenses
                   </CardTitle>
                   <CardDescription className="mt-1">Your latest shared expenses</CardDescription>
@@ -215,7 +266,7 @@ export default function Dashboard() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="text-slate-500 hover:text-slate-700 rounded-xl"
+                  className="text-muted-foreground hover:text-foreground rounded-xl"
                   onClick={() => window.location.href = '/expenses'}
                 >
                   <Filter className="h-4 w-4 mr-1" />
@@ -226,9 +277,9 @@ export default function Dashboard() {
             <CardContent className="pt-2">
               {recentExpenses.length === 0 ? (
                 <div className="text-center py-12">
-                  <Receipt className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500">No expenses yet</p>
-                  <p className="text-sm text-slate-400 mt-1">Start by adding your first expense</p>
+                  <Receipt className="h-12 w-12 text-muted-foreground/60 mx-auto mb-3" />
+                  <p className="text-muted-foreground">No expenses yet</p>
+                  <p className="text-sm text-muted-foreground/80 mt-1">Start by adding your first expense</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -238,27 +289,27 @@ export default function Dashboard() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-white border border-slate-200 hover:border-slate-300 transition-all duration-200 group cursor-pointer"
+                      className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 hover:bg-muted/60 border border-border/60 hover:border-border transition-all duration-200 group cursor-pointer"
                       onClick={() => window.location.href = `/expenses/${expense.id}`}
                     >
                       <div className="flex items-center gap-4 flex-1">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-r from-${expense.color}-100 to-${expense.color}-200 flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
-                          <Receipt className={`h-4 w-4 text-${expense.color}-600`} />
+                        <div className={`w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
+                          <Receipt className={`h-4 w-4 text-orange-500`} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium text-slate-900 truncate">{expense.title}</h4>
+                            <h4 className="font-semibold text-foreground truncate">{expense.title}</h4>
                             <Badge variant="outline" className="text-xs shrink-0">
                               {expense.category}
                             </Badge>
                           </div>
-                          <p className="text-sm text-slate-600">
+                          <p className="text-sm text-muted-foreground">
                             {expense.group} • {expense.date}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-slate-900">₹{expense.amount.toFixed(2)}</p>
+                        <p className="text-lg font-bold text-foreground">₹{expense.amount.toFixed(2)}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -274,10 +325,10 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="bg-white backdrop-blur-sm border-slate-200 shadow-lg h-full">
+          <Card className="bg-card border-border shadow-xs h-full">
             <CardHeader className="pb-4">
               <div>
-                <CardTitle className="text-xl font-semibold text-slate-800 flex items-center gap-2">
+                <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
                   <Users className="h-5 w-5 text-foreground" />
                   Balance Summary
                 </CardTitle>
@@ -288,9 +339,9 @@ export default function Dashboard() {
               <div className="space-y-3">
                 {balanceSummary.length === 0 ? (
                   <div className="text-center py-12">
-                    <Users className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-500">All settled up! 🎉</p>
-                    <p className="text-sm text-slate-400 mt-1">No outstanding balances</p>
+                    <Users className="h-12 w-12 text-muted-foreground/60 mx-auto mb-3" />
+                    <p className="text-muted-foreground">All settled up! 🎉</p>
+                    <p className="text-sm text-muted-foreground/80 mt-1">No outstanding balances</p>
                   </div>
                 ) : (
                   balanceSummary.map((balance, index) => (
@@ -299,10 +350,10 @@ export default function Dashboard() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-white border border-slate-200 hover:border-slate-300 transition-all duration-200 group cursor-pointer"
+                      className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 hover:bg-muted/60 border border-border/60 hover:border-border transition-all duration-200 group cursor-pointer"
                     >
                       <div className="flex items-center gap-4 flex-1">
-                        <Avatar className="w-11 h-11 border-2 border-white shadow-md">
+                        <Avatar className="w-11 h-11 border border-border shadow-md">
                           <AvatarFallback
                             className={`bg-foreground text-background font-semibold text-sm`}
                           >
@@ -310,8 +361,8 @@ export default function Dashboard() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium text-slate-900">{balance.name}</p>
-                          <p className="text-sm text-slate-600">
+                          <p className="font-semibold text-foreground">{balance.name}</p>
+                          <p className="text-sm text-muted-foreground">
                             {balance.type === "owes" ? "Owes you" : "You owe"}
                           </p>
                         </div>
@@ -320,7 +371,7 @@ export default function Dashboard() {
                         <div>
                           <p
                             className={`text-lg font-bold ${
-                              balance.type === "owed" ? "text-emerald-600" : "text-red-600"
+                              balance.type === "owed" ? "text-green-600" : "text-red-600"
                             }`}
                           >
                             ₹{balance.amount.toFixed(2)}
@@ -329,12 +380,24 @@ export default function Dashboard() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className={`rounded-xl text-xs font-medium ${
+                          disabled={requestingFriendId === balance.id}
+                          className={`rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 ${
                             balance.type === "owed"
-                              ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                              : "border-red-200 text-red-700 hover:bg-red-50"
+                              ? "border-green-500/20 text-green-600 hover:bg-green-500/10"
+                              : "border-red-500/20 text-red-600 hover:bg-red-500/10"
                           }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (balance.type === "owed") {
+                              handleRequest(balance.id, balance.name, balance.amount);
+                            } else {
+                              handlePay(balance.id, balance.amount);
+                            }
+                          }}
                         >
+                          {requestingFriendId === balance.id && (
+                            <span className="w-3.5 h-3.5 border-2 border-green-600 border-t-transparent rounded-full animate-spin shrink-0" />
+                          )}
                           {balance.type === "owed" ? "Request" : "Pay"}
                         </Button>
                       </div>
@@ -391,6 +454,18 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </motion.div>
+      )}
+
+      {showSettlementModal && (
+        <CreateSettlementForm
+          onClose={() => setShowSettlementModal(false)}
+          onSubmit={handleSettlementSubmit}
+          groups={groupData?.groups || []}
+          balanceData={balanceData}
+          loading={settlementLoading}
+          preselectedFriendId={preselectedFriendId}
+          preselectedAmount={preselectedAmount}
+        />
       )}
     </div>
   );

@@ -8,8 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { User, Phone, Globe, DollarSign, Camera, Check, Loader2 } from "lucide-react";
+import useSEO from "@/hooks/useSEO";
 
 const SettingPage = () => {
+  useSEO({
+    title: "Settings",
+    description: "Update your SplitMates profile settings, currency, timezone, phone number, and avatar image."
+  });
+
   const { user, setUser } = useAuthStore();
   
   const [formData, setFormData] = useState({

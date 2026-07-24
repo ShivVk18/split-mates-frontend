@@ -38,9 +38,9 @@ export function UserCard({ user, onChanged }) {
   }
 
   return (
-    <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-white border border-slate-200 hover:border-slate-300 transition-all duration-200">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-100 to-blue-200 flex items-center justify-center">
+    <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 hover:bg-white border border-slate-200 hover:border-slate-300 transition-all duration-200 min-w-0">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-100 to-blue-200 flex items-center justify-center shrink-0">
           <span className="text-blue-700 font-semibold">
             {user.name
               ?.split(" ")
@@ -48,12 +48,12 @@ export function UserCard({ user, onChanged }) {
               .join("") || "U"}
           </span>
         </div>
-        <div>
-          <p className="font-medium text-slate-900">{user.name}</p>
-          <p className="text-sm text-slate-600">{user.email}</p>
+        <div className="min-w-0">
+          <p className="font-medium text-slate-900 truncate">{user.name}</p>
+          <p className="text-sm text-slate-600 truncate">{user.email}</p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         {user.relationStatus === "friends" && (
           <Badge variant="outline" className="rounded-xl">
             Friends
