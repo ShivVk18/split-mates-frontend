@@ -17,13 +17,13 @@ export const SettlementCards = ({ onViewSettlement, onCompleteSettlement }) => {
   const getStatusBadge = (status) => {
     const statusInfo = settlementHelpers.getSettlementStatusInfo(status);
     const colors = {
-      PENDING: "bg-orange-100 text-orange-700 border-orange-200",
-      COMPLETED: "bg-green-100 text-green-700 border-green-200",
-      CANCELLED: "bg-red-100 text-red-700 border-red-200",
+      PENDING: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+      COMPLETED: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+      CANCELLED: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
     };
 
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${colors[status] || colors.PENDING}`}>
+      <span className={`px-3 py-0.5 rounded-full text-xs font-semibold border ${colors[status] || colors.PENDING}`}>
         {statusInfo.text}
       </span>
     );
@@ -46,7 +46,7 @@ export const SettlementCards = ({ onViewSettlement, onCompleteSettlement }) => {
       {settlements.map((settlement) => (
         <div
           key={settlement.id}
-          className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300"
+          className="bg-card border border-border/80 text-foreground rounded-2xl p-5 shadow-xs hover:border-border transition-all duration-200"
         >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             {/* Left Section - Payer and Payee Info */}
@@ -54,52 +54,52 @@ export const SettlementCards = ({ onViewSettlement, onCompleteSettlement }) => {
               <div className="flex items-center gap-3 mb-3">
                 {getStatusBadge(settlement.status)}
                 {settlement.group && (
-                  <div className="flex items-center gap-1 text-xs text-slate-600">
-                    <Users className="w-3 h-3" />
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Users className="w-3.5 h-3.5" />
                     <span>{settlement.group.name}</span>
                   </div>
                 )}
               </div>
 
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2.5 mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    <span className="text-blue-700 font-semibold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-blue-500/15 flex items-center justify-center">
+                    <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">
                       {settlement.paidBy.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <span className="font-medium text-slate-800">
+                  <span className="font-semibold text-foreground text-sm">
                     {settlement.paidBy.name}
                   </span>
                 </div>
 
-                <ArrowRight className="w-4 h-4 text-slate-400" />
+                <ArrowRight className="w-4 h-4 text-muted-foreground/60" />
 
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center">
-                    <span className="text-teal-700 font-semibold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">
                       {settlement.paidTo.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <span className="font-medium text-slate-800">
+                  <span className="font-semibold text-foreground text-sm">
                     {settlement.paidTo.name}
                   </span>
                 </div>
               </div>
 
               {settlement.description && (
-                <p className="text-sm text-slate-600 mb-2">
+                <p className="text-xs text-muted-foreground mb-3">
                   {settlement.description}
                 </p>
               )}
 
-              <div className="flex items-center gap-4 text-xs text-slate-500">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
+              <div className="flex items-center gap-4 text-xs text-muted-foreground/80">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5" />
                   <span>{formatDate(settlement.createdAt)}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <CreditCard className="w-3 h-3" />
+                <div className="flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5" />
                   <span>{settlementHelpers.getPaymentMethodText(settlement.method)}</span>
                 </div>
               </div>
@@ -108,7 +108,7 @@ export const SettlementCards = ({ onViewSettlement, onCompleteSettlement }) => {
             {/* Right Section - Amount and Actions */}
             <div className="flex flex-col items-end gap-3">
               <div className="text-right">
-                <p className="text-2xl font-bold text-slate-800">
+                <p className="text-2xl font-extrabold text-foreground tracking-tight">
                   ₹{settlement.amount.toLocaleString("en-IN")}
                 </p>
               </div>
@@ -118,7 +118,7 @@ export const SettlementCards = ({ onViewSettlement, onCompleteSettlement }) => {
                   size="sm"
                   variant="outline"
                   onClick={() => onViewSettlement(settlement)}
-                  className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                  className="rounded-full text-xs font-semibold px-4 cursor-pointer"
                 >
                   View Details
                 </Button>
@@ -127,9 +127,9 @@ export const SettlementCards = ({ onViewSettlement, onCompleteSettlement }) => {
                   <Button
                     size="sm"
                     onClick={() => onCompleteSettlement(settlement.id)}
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-semibold px-4 cursor-pointer"
                   >
-                    <CheckCircle className="w-4 h-4 mr-1" />
+                    <CheckCircle className="w-3.5 h-3.5 mr-1" />
                     Complete
                   </Button>
                 )}

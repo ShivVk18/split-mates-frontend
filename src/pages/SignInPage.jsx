@@ -9,16 +9,15 @@ import { SignInForm } from '@/components/SignInForm'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/userStore'
 import { toast } from 'sonner'
-import { GoogleLogin } from '@react-oauth/google'
 import useSEO from '@/hooks/useSEO'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.5, ease: "easeOut" }
-}  
+}
 
-export default function SignInPage() { 
+export default function SignInPage() {
   useSEO({
     title: "Sign In",
     description: "Sign in to your SplitMates account to view dashboard groups, record shared transactions, and check AI reports."
@@ -76,11 +75,11 @@ export default function SignInPage() {
     }
   }
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  const handleGoogleSuccess = async (tokenResponse) => {
     setIsLoading(true)
     try {
       const response = await axios.post('/api/v1/auth/google-login', {
-        idToken: credentialResponse.credential,
+        accessToken: tokenResponse.access_token,
       })
       if (response.data.success) {
         localStorage.setItem('user', JSON.stringify(response.data.data.user))
@@ -107,7 +106,7 @@ export default function SignInPage() {
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200 overflow-x-hidden relative flex items-center justify-center">
       {/* Background Dots Pattern */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(ellipse_at_center,var(--foreground)_1px,transparent_1px)] bg-[size:24px_24px]" />
-      
+
       {/* Navbar */}
       <AnimatePresence>
         {isNavbarVisible && (
@@ -155,18 +154,11 @@ export default function SignInPage() {
                   <SignInForm
                     isLoading={isLoading}
                     onSubmit={handleSignInSubmit}
-                    googleButton={
-                      <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={handleGoogleError}
-                        type="icon"
-                        shape="circle"
-                        theme="outline"
-                      />
-                    }
+                    onGoogleSuccess={handleGoogleSuccess}
+                    onGoogleError={handleGoogleError}
                   />
                 </AnimatePresence>
-                
+
                 <div className="text-center pt-4 border-t border-border">
                   <p className="text-xs text-muted-foreground mb-1">Don't have an account?</p>
                   <Button

@@ -18,9 +18,10 @@ export function GoogleLoginButton({ onSuccess, onError }) {
 
   return (
     <button
-      type="button"zzzzz
+      type="button"
       onClick={() => login()}
-      className="shrink-0 flex items-center justify-center min-w-[40px] min-h-[40px] rounded-full border border-border hover:bg-muted transition-colors"
+      className="shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full border border-border hover:bg-muted transition-colors cursor-pointer"
+      title="Sign in with Google"
     >
       <GoogleIcon />
     </button>

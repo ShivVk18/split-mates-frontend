@@ -73,11 +73,11 @@ export default function SignUpPage() {
     }
   }
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  const handleGoogleSuccess = async (tokenResponse) => {
     setIsLoading(true)
     try {
       const response = await axios.post('/api/v1/auth/google-login', {
-        idToken: credentialResponse.credential,
+        accessToken: tokenResponse.access_token,
       })
       if (response.data.success) {
         localStorage.setItem('user', JSON.stringify(response.data.data.user))
@@ -160,15 +160,8 @@ export default function SignUpPage() {
                   <SignUpForm
                     isLoading={isLoading} 
                     onSubmit={handleSignUpSubmit} 
-                    googleButton={
-                      <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={handleGoogleError}
-                        type="icon"
-                        shape="circle"
-                        theme="outline"
-                      />
-                    }
+                    onGoogleSuccess={handleGoogleSuccess}
+                    onGoogleError={handleGoogleError}
                   />
                 </AnimatePresence>
 

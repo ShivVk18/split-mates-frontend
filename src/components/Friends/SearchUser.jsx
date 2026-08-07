@@ -48,27 +48,27 @@ export function SearchUsers() {
   }
 
   return (
-    <Card className="bg-white backdrop-blur-sm border-slate-200 shadow-lg">
+    <Card className="bg-card border border-border/80 shadow-md">
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-          <Search className="h-5 w-5 text-blue-600" />
+        <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+          <Search className="h-5 w-5 text-orange-500" />
           Search Users
         </CardTitle>
-        <CardDescription>Type at least 2 characters to search by name, username, or email.</CardDescription>
+        <CardDescription className="text-muted-foreground">Type at least 2 characters to search by name, username, or email.</CardDescription>
       </CardHeader>
       <CardContent className="pt-0 space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search people..."
-            className="pl-9 rounded-xl"
+            className="pl-10 h-11 border-border/80 bg-muted/30 focus:bg-background text-foreground rounded-xl outline-none"
           />
         </div>
 
-        {loading && <p className="text-sm text-slate-500">Searching...</p>}
-        {err && <p className="text-sm text-red-600">Failed to search. {err}</p>}
+        {loading && <p className="text-sm text-muted-foreground">Searching...</p>}
+        {err && <p className="text-sm text-red-500">Failed to search. {err}</p>}
 
         <div className="space-y-3">
           {results.map((u) => (

@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createExpenseSchema } from "@/utils/zodSchema";
+import { Modal, ModalFooter } from "@/components/ui/Modal";
 import groupService from "@/services/groupService";
 import { toast } from "sonner";
 
@@ -303,357 +304,326 @@ const AddExpense = ({ onClose, onSubmit, groups = [], loading = false }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Add expense"
+      subtitle="Record an expense and allocate splits with group members"
+      maxWidth="max-w-lg"
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleFormSubmit, (errors) => {
+          console.log("❌ Form validation errors:", errors);
+          toast.error("Please fill all required fields correctly");
+        })} className="space-y-4">
+          
+          <FormField
+            control={form.control}
+            name="groupId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">Group *</FormLabel>
+                <FormControl>
+                  <Select 
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                    disabled={loading}
+                  >
+                    <SelectTrigger className="h-11 px-3.5 bg-background border-border/80 text-foreground rounded-xl focus:border-foreground/40 focus:ring-2 focus:ring-foreground/5 transition-all">
+                      <SelectValue placeholder="Select group" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover text-popover-foreground border border-border/80 rounded-xl shadow-lg">
+                      {loading ? (
+                        <p className="p-2 text-muted-foreground text-xs">Loading groups...</p>
+                      ) : groups.length === 0 ? (
+                        <p className="p-2 text-muted-foreground text-xs">No groups available</p>
+                      ) : (
+                        groups.map((group) => (
+                          <SelectItem key={group.id} value={group.id}>
+                            {group.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
 
-      <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 sticky top-0 bg-white rounded-t-xl z-10">
-          <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
-              Add New Expense
-            </h2>
-            <p className="text-sm text-slate-600 mt-1">
-              Fill in the details to add your expense
-            </p>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">Description *</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., Dinner at Cafe, Grocery shopping" 
+                    className="h-11 px-3.5 bg-background border-border/80 text-foreground placeholder:text-muted-foreground/60 rounded-xl focus:border-foreground/40 focus:ring-2 focus:ring-foreground/5 transition-all"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">Amount *</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      placeholder="0.00"
+                      className="h-11 px-3.5 bg-background border-border/80 text-foreground placeholder:text-muted-foreground/60 rounded-xl focus:border-foreground/40 focus:ring-2 focus:ring-foreground/5 transition-all font-semibold"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs text-red-500" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">Currency</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="INR, USD..." 
+                      className="h-11 px-3.5 bg-background border-border/80 text-foreground placeholder:text-muted-foreground/60 rounded-xl focus:border-foreground/40 focus:ring-2 focus:ring-foreground/5 transition-all"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs text-red-500" />
+                </FormItem>
+              )}
+            />
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-full p-2 hover:bg-slate-100 transition-colors group"
-          >
-            <X className="h-5 w-5 text-slate-500 group-hover:text-slate-700" />
-          </button>
-        </div>
 
-        <div className="p-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleFormSubmit, (errors) => {
-              console.log("❌ Form validation errors:", errors);
-              toast.error("Please fill all required fields correctly");
-            })} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="paidById"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">Paid by *</FormLabel>
+                <FormControl>
+                  <Select 
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={!selectedGroupId || loadingMembers}
+                  >
+                    <SelectTrigger className="h-11 px-3.5 bg-background border-border/80 text-foreground rounded-xl focus:border-foreground/40 focus:ring-2 focus:ring-foreground/5 transition-all">
+                      <SelectValue placeholder="Select payer" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover text-popover-foreground border border-border/80 rounded-xl shadow-lg">
+                      {loadingMembers ? (
+                        <p className="p-2 text-muted-foreground text-xs">Loading members...</p>
+                      ) : groupMembers.length > 0 ? (
+                        groupMembers.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <p className="p-2 text-muted-foreground text-xs">
+                          {selectedGroupId
+                            ? "No members found"
+                            : "Select a group first"}
+                        </p>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="splitType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">Split type *</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="h-11 px-3.5 bg-background border-border/80 text-foreground rounded-xl focus:border-foreground/40 focus:ring-2 focus:ring-foreground/5 transition-all">
+                      <SelectValue placeholder="Select split type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover text-popover-foreground border border-border/80 rounded-xl shadow-lg">
+                      {splitTypes.map((split) => (
+                        <SelectItem key={split.value} value={split.value}>
+                          {split.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
+
+          {/* Member Splits Allocation */}
+          {selectedGroupId && groupMembers.length > 0 && (
+            <div className="space-y-3 border border-border/60 rounded-xl p-4 bg-muted/20">
+              <span className="text-xs font-semibold text-foreground/90 uppercase tracking-wider block">
+                Split breakdown
+              </span>
               
-              <FormField
-                control={form.control}
-                name="groupId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select Group *</FormLabel>
-                    <FormControl>
-                      <Select 
-                        onValueChange={(value) => {
-                          console.log("👥 Group selected:", value);
-                          field.onChange(value);
-                        }}
-                        value={field.value}
-                        disabled={loading}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select group" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {loading ? (
-                            <p className="p-2 text-slate-500 text-sm">Loading...</p>
-                          ) : groups.length === 0 ? (
-                            <p className="p-2 text-slate-500 text-sm">No groups available</p>
-                          ) : (
-                            groups.map((group) => (
-                              <SelectItem key={group.id} value={group.id}>
-                                {group.name}
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Expense Description *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Dinner at Cafe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Amount *</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          placeholder="Enter amount"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="currency"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Currency</FormLabel>
-                      <FormControl>
-                        <Input placeholder="INR, USD, etc." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="paidById"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Paid By *</FormLabel>
-                    <FormControl>
-                      <Select 
-                        onValueChange={(value) => {
-                          console.log("💳 Payer selected:", value);
-                          field.onChange(value);
-                        }}
-                        value={field.value}
-                        disabled={!selectedGroupId || loadingMembers}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select payer" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {loadingMembers ? (
-                            <p className="p-2 text-slate-500 text-sm">Loading members...</p>
-                          ) : groupMembers.length > 0 ? (
-                            groupMembers.map((member) => (
-                              <SelectItem key={member.id} value={member.id}>
-                                {member.name}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <p className="p-2 text-slate-500 text-sm">
-                              {selectedGroupId
-                                ? "No members found"
-                                : "Select a group first"}
-                            </p>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="splitType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Split Type *</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select split type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {splitTypes.map((split) => (
-                            <SelectItem 
-                              key={split.value} 
-                              value={split.value}
-                            >
-                              {split.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Member Splits Allocation */}
-              {selectedGroupId && groupMembers.length > 0 && (
-                <div className="space-y-4 border border-slate-200 dark:border-border/50 rounded-lg p-4 bg-slate-50 dark:bg-muted/10">
-                  <FormLabel className="text-sm font-semibold text-slate-800 dark:text-foreground">
-                    Split Breakdown
-                  </FormLabel>
+              <div className="space-y-2">
+                {groupMembers.map((member) => {
+                  const shareValue = memberSplits[member.id] || "";
+                  let previewLabel = "";
                   
-                  <div className="space-y-3">
-                    {groupMembers.map((member) => {
-                      const shareValue = memberSplits[member.id] || "";
-                      let previewLabel = "";
-                      
-                      if (form.watch("splitType") === "EQUAL") {
-                        const amountVal = parseFloat(form.watch("amount") || 0);
-                        const equalShare = amountVal > 0 ? (amountVal / groupMembers.length).toFixed(2) : "0.00";
-                        previewLabel = `${form.watch("currency")} ${equalShare}`;
-                      } else if (form.watch("splitType") === "PERCENTAGE" && form.watch("amount")) {
-                        const pct = parseFloat(shareValue) || 0;
-                        const amt = parseFloat(form.watch("amount") || 0);
-                        previewLabel = `${form.watch("currency")} ${((pct / 100) * amt).toFixed(2)}`;
-                      } else if (form.watch("splitType") === "SHARES" && form.watch("amount")) {
-                        const amt = parseFloat(form.watch("amount") || 0);
-                        const totalShares = groupMembers.reduce((sum, m) => sum + (parseFloat(memberSplits[m.id]) || 0), 0);
-                        const shares = parseFloat(shareValue) || 0;
-                        const shareAmt = totalShares > 0 ? ((shares / totalShares) * amt).toFixed(2) : "0.00";
-                        previewLabel = `${form.watch("currency")} ${shareAmt}`;
-                      }
+                  if (form.watch("splitType") === "EQUAL") {
+                    const amountVal = parseFloat(form.watch("amount") || 0);
+                    const equalShare = amountVal > 0 ? (amountVal / groupMembers.length).toFixed(2) : "0.00";
+                    previewLabel = `${form.watch("currency")} ${equalShare}`;
+                  } else if (form.watch("splitType") === "PERCENTAGE" && form.watch("amount")) {
+                    const pct = parseFloat(shareValue) || 0;
+                    const amt = parseFloat(form.watch("amount") || 0);
+                    previewLabel = `${form.watch("currency")} ${((pct / 100) * amt).toFixed(2)}`;
+                  } else if (form.watch("splitType") === "SHARES" && form.watch("amount")) {
+                    const amt = parseFloat(form.watch("amount") || 0);
+                    const totalShares = groupMembers.reduce((sum, m) => sum + (parseFloat(memberSplits[m.id]) || 0), 0);
+                    const shares = parseFloat(shareValue) || 0;
+                    const shareAmt = totalShares > 0 ? ((shares / totalShares) * amt).toFixed(2) : "0.00";
+                    previewLabel = `${form.watch("currency")} ${shareAmt}`;
+                  }
 
-                      return (
-                        <div key={member.id} className="flex items-center justify-between gap-3 bg-white dark:bg-card p-3 rounded-lg border border-slate-200 dark:border-border/50">
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={member.avatar} />
-                              <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold text-xs">
-                                {member.name?.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-medium text-slate-900 dark:text-foreground truncate">{member.name}</p>
-                              {previewLabel && (
-                                <p className="text-[10px] text-slate-500">{previewLabel}</p>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="w-32 shrink-0">
-                            {form.watch("splitType") === "EQUAL" ? (
-                              <div className="text-right text-xs font-bold text-slate-700 dark:text-slate-200">
-                                {previewLabel}
-                              </div>
-                            ) : (
-                              <div className="relative">
-                                <Input
-                                  type="number"
-                                  step="any"
-                                  min="0"
-                                  placeholder={
-                                    form.watch("splitType") === "EXACT" ? "0.00" :
-                                    form.watch("splitType") === "PERCENTAGE" ? "0" :
-                                    "1"
-                                  }
-                                  value={shareValue}
-                                  onChange={(e) => handleSplitInputChange(member.id, e.target.value)}
-                                  className="h-8 text-xs pr-7 text-right"
-                                />
-                                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 font-medium pointer-events-none">
-                                  {form.watch("splitType") === "EXACT" ? form.watch("currency") :
-                                   form.watch("splitType") === "PERCENTAGE" ? "%" :
-                                   "sh"}
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                  return (
+                    <div key={member.id} className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-lg border border-border/50">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <Avatar className="h-7 w-7">
+                          <AvatarImage src={member.avatar} />
+                          <AvatarFallback className="bg-muted text-foreground font-semibold text-xs">
+                            {member.name?.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-foreground truncate">{member.name}</p>
+                          {previewLabel && (
+                            <p className="text-[10px] text-muted-foreground">{previewLabel}</p>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* Live Validation Banner with Elastic Progress Gauge */}
-                  {form.watch("splitType") !== "EQUAL" && (
-                    <div className={`text-[10px] font-semibold p-2.5 rounded-md border space-y-2 ${
-                      isSplitValid().valid 
-                        ? "bg-green-500/10 text-green-600 border-green-500/25 dark:text-green-400" 
-                        : "bg-orange-500/10 text-orange-600 border-orange-500/25 dark:text-orange-400"
-                    }`}>
-                      <p>{isSplitValid().message}</p>
-                      <div className="w-full h-1.5 bg-slate-200 dark:bg-muted/50 rounded-full overflow-hidden">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${getSplitProgress()}%` }}
-                          transition={{ type: "spring", stiffness: 180, damping: 18 }}
-                          className={`h-full rounded-full ${
-                            isSplitValid().valid 
-                              ? "bg-green-500 dark:bg-green-400" 
-                              : getSplitProgress() > 100 
-                                ? "bg-red-500 dark:bg-red-400" 
-                                : "bg-orange-500 dark:bg-orange-400"
-                          }`}
-                        />
+                      </div>
+                      
+                      <div className="w-28 shrink-0">
+                        {form.watch("splitType") === "EQUAL" ? (
+                          <div className="text-right text-xs font-medium text-foreground">
+                            {previewLabel}
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              step="any"
+                              min="0"
+                              placeholder={
+                                form.watch("splitType") === "EXACT" ? "0.00" :
+                                form.watch("splitType") === "PERCENTAGE" ? "0" :
+                                "1"
+                              }
+                              value={shareValue}
+                              onChange={(e) => handleSplitInputChange(member.id, e.target.value)}
+                              className="h-8 text-xs pr-7 text-right bg-background border-border/80"
+                            />
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
+                              {form.watch("splitType") === "EXACT" ? form.watch("currency") :
+                               form.watch("splitType") === "PERCENTAGE" ? "%" :
+                               "sh"}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
+                  );
+                })}
+              </div>
+              
+              {/* Validation Status */}
+              {form.watch("splitType") !== "EQUAL" && (
+                <div className={`text-[11px] font-medium p-2.5 rounded-lg border ${
+                  isSplitValid().valid 
+                    ? "bg-muted/40 text-foreground border-border/60" 
+                    : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
+                }`}>
+                  <p>{isSplitValid().message}</p>
                 </div>
               )}
+            </div>
+          )}
 
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <FormField
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">Date</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="date" 
+                    className="h-11 px-3.5 bg-background border-border/80 text-foreground rounded-xl focus:border-foreground/40 focus:ring-2 focus:ring-foreground/5 transition-all"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
 
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Add any extra details about the expense"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <FormField
+            control={form.control}
+            name="notes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-semibold text-foreground/90 uppercase tracking-wider">Notes <span className="text-muted-foreground font-normal lowercase">(optional)</span></FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Add any extra notes..."
+                    className="px-3.5 py-2.5 bg-background border-border/80 text-foreground placeholder:text-muted-foreground/60 rounded-xl focus:border-foreground/40 focus:ring-2 focus:ring-foreground/5 transition-all resize-none text-sm"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
 
-              <div className="flex gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    console.log("❌ Form cancelled");
-                    onClose();
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold shadow-md active:scale-98 transition-all"
-                  disabled={loadingMembers}
-                  onClick={() => console.log("🔘 Submit button clicked")}
-                >
-                  Add Expense
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
-      </div>
-    </div>
+          <ModalFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="h-10 px-4 text-sm font-medium border-border/80 bg-background text-foreground hover:bg-muted rounded-xl transition-all cursor-pointer"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={loadingMembers}
+              className="h-10 px-5 text-sm font-medium bg-foreground text-background hover:bg-foreground/90 rounded-xl transition-all shadow-xs cursor-pointer"
+            >
+              Add expense
+            </Button>
+          </ModalFooter>
+        </form>
+      </Form>
+    </Modal>
   );
 };
 

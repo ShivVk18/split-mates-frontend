@@ -61,6 +61,28 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
+
+    // Extract logical error message from backend
+    let logicalMessage = error.response?.data?.message || error.response?.data?.error;
+    
+    // Format validation errors if they exist as an array
+    if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+      const details = error.response.data.errors
+        .map((err) => {
+          if (typeof err === "string") return err;
+          return (err.field ? `${err.field}: ${err.message || err.msg}` : err.message) || "";
+        })
+        .filter(Boolean)
+        .join(", ");
+      
+      if (details) {
+        logicalMessage = logicalMessage ? `${logicalMessage}: ${details}` : details;
+      }
+    }
+
+    if (logicalMessage) {
+      error.message = logicalMessage;
+    }
     
     return Promise.reject(error);
   }

@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { userService } from "@/services/userService";
+import { groupService } from "@/services/groupService";
+import { Modal } from "@/components/ui/Modal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -208,41 +210,14 @@ const ViewGroupModal = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-[10000]">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm" 
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div 
-        className="relative w-full max-w-3xl bg-card rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col z-[10001] border border-border/80"
+    <>
+      <Modal
+        isOpen={true}
+        onClose={onClose}
+        title={group.name}
+        subtitle={`${group.category} · ${group.currency} · ${group.members?.length || 0} members`}
+        maxWidth="max-w-3xl"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border bg-card">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              {group.name}
-            </h2>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge className={getCategoryColor(group.category)}>
-                {group.category}
-              </Badge>
-              <Badge variant="outline" className="flex items-center gap-1">
-                <DollarSign className="h-3 w-3" />
-                {group.currency}
-              </Badge>
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {group.members?.length || 0} members
-              </Badge>
-            </div>
-          </div>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted transition-colors group">
-            <X className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-          </button>
-        </div>
 
         {/* Tabs */}
         <div className="flex border-b border-border bg-card px-6">
@@ -630,7 +605,7 @@ const ViewGroupModal = ({
             Close
           </Button>
         </div>
-      </div>
+      </Modal>
 
       {/* Remove Member Dialog */}
       <AlertDialog open={!!removeMemberDialog} onOpenChange={() => setRemoveMemberDialog(null)}>
@@ -747,7 +722,7 @@ const ViewGroupModal = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 };
 
